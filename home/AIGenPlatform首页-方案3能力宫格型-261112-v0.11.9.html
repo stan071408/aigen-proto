@@ -584,8 +584,8 @@ function base(x){return '原标题“'+x.t+'”来自'+PF[x.p]+'（第'+x.r+'名
 /* ---------- 第 01 步：界面 ---------- */
 var FIRE='<svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.5 2s.9 3.2-1.4 6.2C10.4 10.5 8 11.6 8 15a4 4 0 0 0 8 0c0-1.4-.6-2.5-1.3-3.4 2.6.7 4.3 3.1 4.3 5.9A7 7 0 0 1 5 17.5C5 10.6 12.3 8.6 13.5 2Z"/></svg>';
 window.entryUI=function(){var L=H.loading;
- var set='<div class="hot-card hot-set"><div class="hot-lbl-row"><span class="hot-lbl">采集平台</span><span class="hot-faint">可多选</span></div><div class="hot-plats" role="group" aria-label="采集平台">'+Object.keys(PF).map(function(k){return '<label class="hot-plat'+(H.plat[k]?' on':'')+'"><input type="checkbox" id="plat-'+k+'" '+(H.plat[k]?'checked':'')+' onchange="hotPlat(\''+k+'\',this.checked)"><span>'+PF[k]+'</span></label>'}).join('')+'</div>'+
- '<div class="hot-row"><div class="hot-topic"><label class="hot-lbl" for="hotTopic">主题方向</label><input id="hotTopic" value="'+esc(H.topic)+'" placeholder="输入主题方向；为空获取所有榜单数据" oninput="HOT.topic=this.value"></div><div class="hot-cnt">'+countCtl('hotCount',H.count,1,10,'文章标题数','HOT.count=Number(this.value)')+'</div></div>'+
+ var set='<div class="hot-card hot-set"><div class="hot-lbl-row"><span class="hot-lbl">采集平台</span><span class="hot-faint">可多选</span><div class="hot-cnt">'+countCtl('hotCount',H.count,1,10,'标题数（1–10）','HOT.count=Number(this.value)')+'</div></div><div class="hot-plats" role="group" aria-label="采集平台">'+Object.keys(PF).map(function(k){return '<label class="hot-plat'+(H.plat[k]?' on':'')+'"><input type="checkbox" id="plat-'+k+'" '+(H.plat[k]?'checked':'')+' onchange="hotPlat(\''+k+'\',this.checked)"><span>'+PF[k]+'</span></label>'}).join('')+'</div>'+
+ '<div class="hot-row"><div class="hot-topic"><label class="hot-lbl" for="hotTopic">主题方向</label><input id="hotTopic" value="'+esc(H.topic)+'" placeholder="输入主题方向；为空获取所有榜单数据" oninput="HOT.topic=this.value"></div></div>'+
  '<hr class="hot-sep"><div class="hot-btn-row"><button type="button" class="primary rf-main-btn '+(L?'is-loading':'')+'" id="hotFetchBtn" '+(L?'aria-busy="true" aria-disabled="true"':'')+' onclick="hotFetch()">'+(L?'<span class="btn-spin" aria-hidden="true"></span>获取中…':'获取平台当前榜单热门数据')+'</button></div>'+
  (H.error?'<div class="hot-err" role="alert">'+esc(H.error)+'</div>':'')+
  '<details class="hot-demo" id="hotDemoBox" '+(H.demoOpen?'open':'')+' ontoggle="HOT.demoOpen=this.open"><summary>▸ 原型演示设置</summary><div class="dg"><label for="hotDemoSel">榜单返回</label><select id="hotDemoSel" onchange="hotDemo(this.value)">'+[['normal','按条件返回'],['short','结果不足（最多 3 条）'],['empty','无匹配结果（空态）'],['error','采集失败']].map(function(o){return '<option value="'+o[0]+'" '+(H.demo===o[0]?'selected':'')+'>'+o[1]+'</option>'}).join('')+'</select><button type="button" onclick="hotReset()">重置第 01 步</button><span>仅供状态评审，不是产品正式功能；第 02–06 步的演示状态请用顶部「模拟请求 ▾」。</span></div></details></div>';
@@ -641,13 +641,17 @@ S.stage=1;render();
 .hot-log{background:#fff9ea;border-color:#f1e1b4}
 .hot-res{background:#effaf3;border-color:#cfe8d8}
 .hot-lbl-row,.hot-card-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.hot-set .hot-lbl-row{justify-content:flex-start;gap:10px}
+.hot-set .hot-lbl-row .hot-cnt{margin-left:auto;flex:0 0 auto}
+.hot-set .hot-lbl-row .hot-cnt .rf-count-row,
+.hot-set .hot-lbl-row .hot-cnt .ctl-field{display:flex;flex-direction:row;align-items:center;gap:8px;margin:0}
 .hot-lbl{font-size:13px;font-weight:600;color:var(--ink)}
 .hot-faint{font-size:12px;color:#8592a6}
 .hot-plats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
 .hot-plat{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #cfd8e6;border-radius:999px;padding:3px 10px;min-height:26px;font-size:11px;font-weight:400;line-height:1.3;color:var(--ink);cursor:pointer;user-select:none;box-shadow:none;transition:border-color .15s,background .15s}
 .hot-plat input{width:16px;height:16px;margin:0;flex:none}
 .hot-plat.on,.hot-plat:has(input:checked){background:#e3edfc;border-color:#c5d4ea;color:var(--ink);font-weight:500;box-shadow:none}
-.hot-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end}
+.hot-row{display:block}
 .hot-topic .hot-lbl{display:block;margin-bottom:6px}
 .hot-topic input{width:100%;height:36px;border:2px solid #6b7c94;border-radius:12px;padding:0 12px;background:#fff;box-sizing:border-box}
 .hot-topic input:hover{border-color:#4e627c}
@@ -712,6 +716,19 @@ S.stage=1;render();
 #step-1 .zn-set.zn-toolbar{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:8px;padding:10px 12px;grid-template-columns:none;grid-template-rows:none}
 #step-1 .zn-toolbar .zn-b{display:contents}
 #step-1 .branch-tabs{grid-column:auto;grid-row:auto;align-self:flex-start;margin:0}
+/* v0.11.9：来源标签行右侧放标题数；主题输入与开始处理同一行 */
+#step-1 .s1-tab-row{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;box-sizing:border-box}
+#step-1 .s1-tab-row .branch-tabs{align-self:center;margin:0;flex:0 1 auto;min-width:0}
+#step-1 .s1-tab-count{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:4px;margin-left:auto;flex:0 0 auto}
+#step-1 .s1-tab-count-ctl{display:inline-flex;align-items:center;gap:8px}
+#step-1 .s1-tab-count .fld-label,
+#step-1 .s1-tab-count .field-label{margin:0}
+#step-1 .s1-tab-count .fld-err{margin:0;text-align:right}
+#step-1 .s1-input-row{display:flex;align-items:flex-start;gap:12px;width:100%}
+#step-1 .s1-input-col{flex:1 1 auto;min-width:0}
+#step-1 .s1-input-col input{width:100%;height:40px;min-height:40px;box-sizing:border-box}
+#step-1 .s1-input-row .s1-start-btn{flex:0 0 148px;width:148px;height:40px;min-height:40px;margin-top:0}
+
 #step-1 .s1-form{display:flex;flex-direction:column;justify-content:space-between;gap:8px;height:100%;min-height:0;box-sizing:border-box}
 #step-1 .s1-fields{min-width:0}
 #step-1 .s1-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px 12px;margin:0;margin-top:auto}
@@ -723,7 +740,7 @@ S.stage=1;render();
 #step-1 .s1-plat .platforms{gap:8px}
 #step-1 .s1-plat .platforms label{padding:4px 12px;font-size:12px;display:inline-flex;align-items:center;gap:6px;user-select:none}
 #step-1 .s1-plat .platforms input{margin:0;/* appearance 由 fieldCss 自绘 */}
-#step-1 .s1-plat #platTopic{height:36px;padding:6px 12px;box-sizing:border-box}
+#step-1 .s1-plat #platTopic{height:40px;min-height:40px;padding:6px 12px;box-sizing:border-box}
 #step-1 .s1-direct .hint{margin:0;font-size:11px}
 #step-1 .s1-fields .chips{margin-top:6px}
 /* 有结果后不再压扁设置卡，避免与三种标签的统一高度冲突；覆盖画布自带的紧凑规则 */
@@ -735,7 +752,7 @@ S.stage=1;render();
 #step-1:has(.s1-res-list) .s1-row .chips{display:flex}
 #step-1:has(.s1-res-list) .s1-plat{display:block;margin-top:0}
 #step-1:has(.s1-res-list) .s1-plat .s1-plat-row{margin-top:0}
-#step-1:has(.s1-res-list) .s1-plat #platTopic{height:36px;padding:6px 12px;box-sizing:border-box}
+#step-1:has(.s1-res-list) .s1-plat #platTopic{height:40px;min-height:40px;padding:6px 12px;box-sizing:border-box}
 /* 平台热榜结果行：复用热榜第 1 步 .hot-item 样式 */
 #step-1 .hot-list{display:grid;gap:8px;flex:1 1 auto;min-height:0;align-content:start;overflow:auto}
 #step-1 .hot-item{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;background:#fff;border:1px solid #d6eadc;border-radius:12px;padding:11px 14px;cursor:pointer;transition:border-color .15s,box-shadow .15s}
@@ -2147,6 +2164,41 @@ dialog select:hover{border-color:var(--manual-hover,#4e627c)}
   min-height:36px !important;
   box-sizing:border-box;
 }
+
+/* v0.11.9：第 1 步标题数移到标签行右侧；主题输入与「开始处理」同一行。
+   输入框高度 40px，与主按钮 148×40 顶底对齐；间距 12px；错误提示放在输入框正下方，不挤乱这一行。 */
+#content #step-1 .s1-tab-row{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;box-sizing:border-box}
+#content #step-1 .s1-tab-row .branch-tabs{align-self:center;margin:0;flex:0 1 auto;min-width:0}
+#content #step-1 .s1-tab-count{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:4px;margin-left:auto;flex:0 0 auto}
+#content #step-1 .s1-tab-count-ctl{display:inline-flex;align-items:center;gap:8px}
+#content #step-1 .s1-tab-count .fld-label,
+#content #step-1 .s1-tab-count .field-label{margin:0 !important}
+#content #step-1 .s1-tab-count .fld-err{margin:0;text-align:right}
+#content #step-1 .s1-input-row{display:flex;align-items:flex-start;gap:12px;width:100%}
+#content #step-1 .s1-input-col{flex:1 1 auto;min-width:0}
+#content #step-1 .s1-input-col input,
+#content #step-1 #platTopic,
+#content #step-1 #topicInput,
+#content #step-1 input.topic{
+  width:100%;
+  height:40px !important;
+  min-height:40px !important;
+  box-sizing:border-box !important;
+  flex:none !important;
+  margin:0 !important;
+}
+#content #step-1 .s1-input-row .s1-start-btn,
+#content #step-1 .s1-start-btn{
+  flex:0 0 148px;
+  width:148px;
+  min-width:148px;
+  height:40px;
+  min-height:40px;
+  box-sizing:border-box;
+  margin-top:0;
+}
+#content #step-1 .s1-plat .s1-plats{margin-bottom:8px}
+#content #step-1 .s1-form .chips{margin-top:6px}
 
 </script>
 <script type="text/plain" id="fieldJs">
