@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>稿件预览区统一方案 · 261112 · v0.1.0</title>
+<style>
+:root{
+  --bg:#f1f6fc;--paper:#fff;--ink:#14213a;--muted:#596579;--faint:#8a96a8;
+  --line:#d9e3f0;--dash:#c3d3ea;--accent:#1c5fc4;--accent-d:#164ea3;--soft:#e3edfc;
+  --border:#6b7c94;--radius:12px;--ctl-h:36px;--ctl-h-lg:40px;
+  --shadow:0 8px 28px rgba(20,33,58,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);
+  font:14px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+button,input{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,[tabindex]:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px}
+.hidden,[hidden]{display:none!important}
+
+/* ===== page chrome ===== */
+.top{
+  position:sticky;top:0;z-index:20;
+  background:#fff;border-bottom:1px solid var(--line);
+  box-shadow:0 1px 0 rgba(20,33,58,.02);
+}
+.top-inner{max-width:1180px;margin:0 auto;padding:12px 20px 14px}
+.top-row{display:flex;align-items:center;gap:12px 16px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:8px;min-width:0;flex:1 1 220px}
+.brand h1{margin:0;font-size:16px;font-weight:650;letter-spacing:-.02em;white-space:nowrap}
+.brand .ver{font-size:11px;color:var(--accent);background:var(--soft);border-radius:999px;padding:2px 8px;font-weight:650}
+.brand .note{font-size:12px;color:var(--muted);white-space:nowrap}
+.seg{display:inline-flex;align-items:center;background:#e6eef8;border-radius:var(--radius);padding:3px;height:var(--ctl-h);box-sizing:border-box}
+.seg button{
+  height:30px;padding:0 14px;border:0;background:transparent;color:var(--muted);
+  border-radius:10px;font-size:13px;font-weight:550;white-space:nowrap
+}
+.seg button.is-on{background:#fff;color:var(--accent);font-weight:650;box-shadow:0 1px 2px rgba(20,33,58,.08)}
+.top-state{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}
+.lead{
+  max-width:1180px;margin:0 auto;padding:10px 20px 0;
+  font-size:13px;color:var(--muted);line-height:1.6
+}
+.lead b{color:var(--ink);font-weight:650}
+.page{max-width:1180px;margin:0 auto;padding:8px 20px 64px}
+
+/* ===== section ===== */
+.block{margin-top:22px}
+.block-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 10px;flex-wrap:wrap}
+.block-h h2{margin:0;font-size:15px;font-weight:650}
+.block-h .hint{margin:0;font-size:12px;color:var(--muted)}
+
+/* ===== shared buttons ===== */
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:var(--ctl-h-lg);min-width:132px;padding:0 16px;
+  border-radius:var(--radius);border:1px solid var(--accent);
+  background:#fff;color:var(--accent);font-size:14px;font-weight:550
+}
+.btn:hover{background:var(--soft)}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.primary:hover{background:var(--accent-d)}
+.btn.quiet{border-color:var(--line);color:var(--ink);background:#fff}
+.btn.quiet:hover{border-color:var(--accent);color:var(--accent)}
+
+/* fold chevron */
+.chev{display:inline-flex;width:16px;height:16px;flex:none;color:#5b6b82;transition:transform 180ms ease}
+.pv.is-collapsed .chev{transform:rotate(180deg)}
+.fold-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:0;background:transparent;border-radius:8px;padding:0;color:#5b6b82}
+.fold-btn:hover{background:rgba(28,95,196,.08)}
+
+/* example marker */
+.ex{font-size:11px;color:var(--faint);font-weight:500}
+.kicker{font-size:11px;color:var(--muted);letter-spacing:.04em}
+
+/* typography inside ready body */
+.body-title{margin:0 0 8px;font-weight:650;color:var(--ink);line-height:1.45}
+.body-p{margin:0 0 14px;color:#334159}
+.body-p:last-child{margin-bottom:0}
+.sample-flag{margin:0 0 12px;font-size:11px;color:var(--faint)}
+
+/* placeholder images */
+.ph{margin:0 0 16px;padding:0;border:0}
+.ph-block{
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  background:linear-gradient(165deg,#d7e6f8 0%,#c0d5ef 55%,#b4cbe8 100%);
+  color:#3b5478;font-size:12px;font-weight:550;letter-spacing:.02em;
+  border:1px dashed #9bb4d4;box-sizing:border-box
+}
+.ph-16x9{aspect-ratio:16/9;width:100%}
+.ph-4x3{aspect-ratio:4/3;width:100%}
+.ph figcaption{margin-top:6px;font-size:11px;color:var(--muted);text-align:center}
+
+/* empty + loading */
+.empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  padding:28px 20px;min-height:160px;color:var(--muted);font-size:12px;line-height:1.8
+}
+.empty .symbol{font-size:22px;color:#6d8cbd;line-height:1;margin-bottom:4px}
+.empty b{display:block;font-size:13px;font-weight:650;color:#3b4a63;margin:4px 0}
+.skel{padding:16px 0}
+.sk-bar{display:block;height:10px;border-radius:5px;margin:8px 0;
+  background:linear-gradient(90deg,#e6eef9 25%,#f4f8fd 50%,#e6eef9 75%);
+  background-size:200% 100%;animation:sk 1.2s linear infinite}
+.sk-bar.lg{height:16px;width:72%;margin-bottom:16px}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.sk-img{display:block;width:100%;aspect-ratio:16/9;border-radius:8px;
+  background:linear-gradient(90deg,#e6eef9 25%,#f4f8fd 50%,#e6eef9 75%);
+  background-size:200% 100%;animation:sk 1.2s linear infinite;margin:0 0 12px}
+
+/* state visibility */
+.pv .st-loading,.pv .st-empty{display:none}
+.page.is-loading .pv .st-ready,.page.is-loading .pv .st-empty,.page.is-loading .pv .actions,
+.page.is-loading .block > .actions{display:none}
+.page.is-loading .pv .st-loading{display:block}
+.page.is-empty .pv .st-ready,.page.is-empty .pv .st-loading,.page.is-empty .pv .actions,
+.page.is-empty .block > .actions{display:none}
+.page.is-empty .pv .st-empty{display:block}
+.page.is-loading .pv.is-collapsed .st-loading,
+.page.is-empty .pv.is-collapsed .st-empty{display:none}
+/* 方案 A 图文稿加载态封面骨架不要撑满整屏 */
+.page.is-loading .a-card .sk-img{max-height:180px;aspect-ratio:auto}
+
+/* candidate titles */
+.cands{display:grid;gap:6px;margin:0 0 12px}
+.cands .lab{font-size:11px;color:var(--muted)}
+.cand{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;border:1px solid #e4ebf5;border-radius:8px;cursor:pointer;font-size:12px;line-height:1.6;margin:0}
+.cand input{margin:3px 0 0;flex:none;accent-color:var(--accent)}
+.cand:hover{border-color:#a9c2e6;background:#f8fbff}
+.cand:has(input:checked){border-color:var(--accent);background:var(--soft)}
+
+/* tags */
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:999px;font-size:11px;background:var(--soft);color:var(--accent);font-weight:550;white-space:nowrap}
+.tag.neutral{background:#eef3fa;color:#4b5870}
+
+/* ===================== SCHEME A: cards ===================== */
+.a-card{
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden
+}
+.a-head{
+  display:flex;align-items:center;gap:8px;padding:10px 14px;
+  border-bottom:1px solid var(--line);background:#f7faff;min-height:44px;cursor:pointer
+}
+.a-head:hover{background:#eef4fb}
+.a-head .ttl{font-size:14px;font-weight:650;margin:0;min-width:0}
+.a-head .meta{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px;white-space:nowrap;flex:none}
+.a-body{padding:16px 18px 18px}
+.a-card .body-title{font-size:18px}
+.a-card .body-p{font-size:14px;line-height:2}
+.a-card .ph-block{border-radius:8px}
+.a-card.is-collapsed .a-head{border-bottom-color:transparent}
+.a-card.is-collapsed .a-body{display:none}
+.a-wrap{padding:0 0 4px}
+.a-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.a-grid .a-card .body-title{font-size:16px}
+.a-grid .a-card .body-p{font-size:13px;line-height:1.85;margin-bottom:10px}
+.a-grid .a-body{padding:12px 14px 14px;max-height:320px;overflow:auto}
+.a-grid .a-card.is-collapsed .a-body{display:none}
+.a-set-actions{display:flex;justify-content:flex-end;margin-top:10px}
+@media (max-width:1100px){
+  .a-grid{grid-template-columns:1fr}
+  .a-grid .a-body{max-height:none}
+}
+
+/* ===================== SCHEME B: paper ===================== */
+.b-desk{background:#e6eef6;border-radius:16px;padding:22px 16px 20px}
+.b-paper{
+  background:#fff;max-width:760px;margin:0 auto;
+  padding:36px 48px 32px;border-radius:4px;
+  box-shadow:0 10px 36px rgba(20,33,58,.08),0 0 0 1px rgba(20,33,58,.04);
+  position:relative
+}
+.b-paper .b-tools{
+  display:flex;align-items:center;gap:8px;margin:0 0 18px;font-size:11px;color:var(--muted)
+}
+.b-paper .b-tools .fold-btn{margin-left:auto}
+.b-paper .kicker{display:block;margin-bottom:8px;letter-spacing:.12em;text-transform:uppercase;font-size:10px;color:var(--accent)}
+.b-paper .body-title{font-size:26px;line-height:1.4;font-weight:650;margin:0 0 10px;letter-spacing:-.3px}
+.b-paper .body-p{font-size:15px;line-height:2.15;margin:0 0 18px;color:#2c3a51}
+.b-paper .ph{margin:8px -12px 22px}
+.b-paper .ph.bleed{margin:0 -48px 22px}
+.b-paper .ph.bleed .ph-block{border-radius:0;border-left:0;border-right:0}
+.b-paper .ph-block{border-radius:2px}
+.b-paper.is-collapsed .b-ready{display:none}
+.b-paper .actions{justify-content:flex-end;border-top:1px solid var(--line);padding-top:16px;margin-top:22px}
+.b-stack{display:grid;gap:18px}
+.b-cands{margin:0 0 18px}
+.b-empty-paper{min-height:240px;display:flex;align-items:center;justify-content:center}
+.b-empty-paper .empty{background:transparent}
+
+/* ===================== SCHEME C: tabs ===================== */
+.c-shell{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.c-bar{
+  display:flex;align-items:center;gap:8px;min-height:44px;
+  padding:0 8px 0 6px;background:#f4f8fd;border-bottom:1px solid var(--line)
+}
+.c-tabs{display:flex;gap:0;min-width:0;flex:1;overflow:auto}
+.c-tabs button{
+  flex:none;height:44px;padding:0 14px;border:0;border-bottom:2px solid transparent;
+  background:transparent;color:var(--muted);font-size:13px;border-radius:0
+}
+.c-tabs button.is-on{color:var(--accent);font-weight:650;border-bottom-color:var(--accent)}
+.c-bar .meta{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);flex:none;padding-right:4px}
+.c-body{padding:16px 18px 18px}
+.c-shell .body-title{font-size:16px}
+.c-shell .body-p{font-size:14px;line-height:1.9;margin-bottom:12px}
+.c-shell .ph-block{border-radius:8px}
+.c-strip{display:flex;gap:8px;margin:0 0 14px;overflow:auto}
+.c-strip .ph{margin:0;flex:0 0 160px}
+.c-strip .ph-block{aspect-ratio:16/9;width:160px;height:auto;border-radius:8px;font-size:11px}
+.c-shell.is-collapsed .c-body{display:none}
+.c-shell.is-collapsed .c-bar{border-bottom-color:transparent}
+.c-shell .actions{margin-top:4px;padding-top:14px;border-top:1px solid var(--line)}
+
+/* toast */
+.toast{
+  position:fixed;right:20px;bottom:20px;z-index:40;
+  background:#fff;border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:12px;box-shadow:0 8px 24px rgba(20,33,58,.12);
+  padding:10px 14px;font-size:13px;color:var(--ink);
+  opacity:0;transform:translateY(8px);pointer-events:none;
+  transition:opacity .2s,transform .2s
+}
+.toast.show{opacity:1;transform:none}
+
+.foot{max-width:1180px;margin:8px auto 0;padding:0 20px 40px;font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div class="top-row">
+      <div class="brand">
+        <h1>稿件预览区统一方案</h1>
+        <span class="ver">v0.1.0</span>
+        <span class="note">对照原型 · 示例数据 · 不改主流程</span>
+      </div>
+      <div class="seg" id="schemeTabs" role="tablist" aria-label="方案">
+        <button type="button" role="tab" data-scheme="a" class="is-on" aria-selected="true">方案 A 卡片并列</button>
+        <button type="button" role="tab" data-scheme="b" aria-selected="false">方案 B 文档纸面</button>
+        <button type="button" role="tab" data-scheme="c" aria-selected="false">方案 C 标签切换</button>
+      </div>
+      <div class="top-state">
+        <span>查看状态</span>
+        <div class="seg" id="stateTabs" role="tablist" aria-label="状态">
+          <button type="button" role="tab" data-state="ready" class="is-on" aria-selected="true">已生成</button>
+          <button type="button" role="tab" data-state="loading" aria-selected="false">加载中</button>
+          <button type="button" role="tab" data-state="empty" aria-selected="false">空状态</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<p class="lead" id="schemeLead"><b>方案 A · 卡片并列。</b>四种稿共用同一张结果卡：顶栏放类型、分类、字数和折叠箭头，正文在卡内，操作按钮固定在卡下。三稿三张卡并排，一次看完三份差异；图文稿把封面放在标题下、配图插在段与段之间。</p>
+
+<div class="page" id="page">
+
+<!-- ===================== A ===================== -->
+<div class="scheme" id="scheme-a">
+
+  <section class="block" data-kind="orig">
+    <div class="block-h"><h2>1. 原稿正文预览</h2><p class="hint">对应第 2 步 · 可折叠 · 三按钮在卡下</p></div>
+    <article class="pv a-card">
+      <div class="a-head" data-fold>
+        <h3 class="ttl">原稿正文预览</h3>
+        <span class="tag">原稿</span>
+        <span class="tag neutral">社会民生</span>
+        <span class="meta"><span>862 字</span><span class="chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6.5L8 10.5L12 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+      </div>
+      <div class="a-body">
+        <div class="st-ready">
+          <h4 class="body-title">社区养老服务如何走到老年人身边</h4>
+          <p class="sample-flag">以下为原型示例正文，不代表真实生成内容</p>
+          <p class="body-p">社区养老要走进老年人的日常，先要把服务从「网点」挪到「身边」。食堂、助浴、巡诊如果只开在街道中心，步行超过十五分钟，许多高龄老人就会放弃。</p>
+          <p class="body-p">把服务拆成可组合的单元，比新建一处大型设施更有效。早餐送到家、每周一次助洁、家庭医生按需上门，这些小事叠在一起，才构成能被感知的「身边服务」。</p>
+          <p class="body-p">社区工作人员的体会是：老年人记住的不是政策名称，而是上周谁来过、下次什么时候再来。稳定的人、稳定的节奏，比临时的集中活动更重要。</p>
+        </div>
+        <div class="st-loading skel" aria-hidden="true"><span class="sk-bar lg" style="width:70%"></span><span class="sk-bar" style="width:96%"></span><span class="sk-bar" style="width:92%"></span><span class="sk-bar" style="width:88%"></span><span class="sk-bar" style="width:64%"></span></div>
+        <div class="st-empty empty"><span class="symbol" aria-hidden="true">▤</span><b>这篇文章，从原稿开始</b>按指定标题生成可预览的原稿；勾选「去AI化」会在生成时一并处理。</div>
+      </div>
+    </article>
+    <div class="actions">
+      <button type="button" class="btn quiet" data-demo="导出本稿">导出本稿</button>
+      <button type="button" class="btn primary" data-demo="进入图文生成">进入图文生成</button>
+      <button type="button" class="btn primary" data-demo="原稿深度加工">原稿深度加工</button>
+    </div>
+  </section>
+
+  <section class="block" data-kind="drafts">
+    <div class="block-h"><h2>2. 三稿</h2><p class="hint">对应 3.3 / 3.4 · 三张卡并列，一份一卡</p></div>
+    <div class="a-grid">
+      <article class="pv a-card">
+        <div class="a-head" data-fold>
+          <h3 class="ttl">差异化</h3>
+          <span class="meta"><span>910 字</span><span class="chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6.5L8 10.5L12 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+        </div>
+        <div class="a-body">
+          <div class="st-ready">
+            <h4 class="body-title">社区养老，和机构养老比的不是床位</h4>
+            <p class="sample-flag">示例正文 · 差异化方向</p>
+            <p class="body-p">和机构养老不同，社区养老比的不是床位数，而是「晚上去哪里吃饭、白天有谁在」。把服务做成可走到家门口的单元，才能跟机构养老形成真正的差异。</p>
+            <p class="body-p">差异首先来自距离。十五分钟步行圈里如果没有一个能坐下、能问事、能简单处置的点，再完整的服务清单也只是墙上的通知。</p>
+            <p class="body-p">其次来自关系。同一位护理员连续上门，比每周换人更能让老人安心。这篇把关系链写在前，设施和设备放在后。</p>
+          </div>
+          <div class="st-loading skel" aria-hidden="true"><span class="sk-bar lg" style="width:60%"></span><span class="sk-bar" style="width:94%"></span><span class="sk-bar" style="width:80%"></span><span class="sk-bar" style="width:70%"></span></div>
+          <div class="st-empty empty"><span class="symbol" aria-hidden="true">✎</span><b>差异化稿待生成</b>选定方向后，三份稿会并排出现在这里。</div>
+        </div>
+      </article>
+      <article class="pv a-card">
+        <div class="a-head" data-fold>
+          <h3 class="ttl">广度</h3>
+          <span class="meta"><span>1024 字</span><span class="chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6.5L8 10.5L12 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+        </div>
+        <div class="a-body">
+          <div class="st-ready">
+            <h4 class="body-title">社区养老牵动的，不只是民政一件事</h4>
+            <p class="sample-flag">示例正文 · 广度方向</p>
+            <p class="body-p">家属最关心夜里有没有人可叫，社区工作者关心派单会不会叠床架屋，医生关心上门有没有基本药品，街道则要同时面对场地、人员和经费。</p>
+            <p class="body-p">把这些角色放到同一张图上，才能看到服务断在哪里。早餐送到了，但助浴排不上——问题往往出在角色之间。</p>
+            <p class="body-p">广度稿用更多场景铺开：老旧小区、新建社区、子女不在身边的家庭，以及季节性的照护高峰。</p>
+          </div>
+          <div class="st-loading skel" aria-hidden="true"><span class="sk-bar lg" style="width:64%"></span><span class="sk-bar" style="width:90%"></span><span class="sk-bar" style="width:86%"></span><span class="sk-bar" style="width:58%"></span></div>
+          <div class="st-empty empty"><span class="symbol" aria-hidden="true">✎</span><b>广度稿待生成</b>选定方向后，三份稿会并排出现在这里。</div>
+        </div>
+      </article>
+      <article class="pv a-card">
+        <div class="a-head" data-fold>
+          <h3 class="ttl">深度</h3>
+          <span class="meta"><span>1186 字</span><span class="chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6.5L8 10.5L12 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+        </div>
+        <div class="a-body">
+          <div class="st-ready">
+            <h4 class="body-title">「走到身边」要先回答谁来、走多远、多久一次</h4>
+            <p class="sample-flag">示例正文 · 深度方向</p>
+            <p class="body-p">要把这句话落成可执行的安排，先得回答三个问题：谁来、走多远、多久来一次。服务半径超过步行十五分钟，响应就会掉到老人不愿等待的区间。</p>
+            <p class="body-p">把流程拆开：需求摸排、派单、上门、记录、回访。每一步都对应责任人和可检查的结果，而不是停留在「加强服务」。</p>
+            <p class="body-p">与其先建中心，不如先保证每周固定频次的上门，再按实际使用扩展餐食、助洁和巡诊的组合。</p>
+          </div>
+          <div class="st-loading skel" aria-hidden="true"><span class="sk-bar lg" style="width:68%"></span><span class="sk-bar" style="width:93%"></span><span class="sk-bar" style="width:84%"></span><span class="sk-bar" style="width:61%"></span></div>
+          <div class="st-empty empty"><span class="symbol" aria-hidden="true">✎</span><b>深度稿待生成</b>选定方向后，三份稿会并排出现在这里。</div>
+        </div>
+      </article>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn quiet" data-demo="导出全部稿件">导出全部稿件</button>
+      <button type="button" class="btn quiet" data-demo="导出本稿">导出本稿</button>
+      <button type="button" class="btn primary" data-demo="进入图文生成">进入图文生成</button>
+      <button type="button" class="btn primary" data-demo="合并三稿">合并三稿</button>
+    </div>
+  </section>
+
+  <section class="block" data-kind="merged">
+    <div class="block-h"><h2>3. 三稿合稿</h2><p class="hint">对应 3.5 · 与原稿同一张卡，头部增加候选标题</p></div>
+    <article class="pv a-card">
+      <div class="a-head" data-fold>
+        <h3 class="ttl">三稿合稿预览</h3>
+        <span class="tag">合稿</span>
+        <span class="tag neutral">社会民生</span>
+        <span class="meta"><span>1340 字</span><span class="chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6.5L8 10.5L12 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+      </div>
+      <div class="a-body">
+        <div class="st-ready">
+          <div class="cands">
+            <span class="lab">候选标题</span>
+            <label class="cand"><input type="radio" name="a-merged-title" checked><span>社区养老服务如何走到老年人身边</span></label>
+            <label class="cand"><input type="radio" name="a-merged-title"><span>把养老服务从网点搬到身边</span></label>
+            <label class="cand"><input type="radio" name="a-merged-title"><span>十五分钟里的社区养老</span></label>
+          </div>
+          <h4 class="body-title">社区养老服务如何走到老年人身边</h4>
+          <p class="sample-flag">以下为原型示例正文，不代表真实生成内容</p>
+          <p class="body-p">社区养老要走进老年人的日常，先要把服务从网点挪到身边。和机构养老不同，这里比的不是床位数，而是晚饭去哪里吃、白天有谁在。</p>
+          <p class="body-p">服务应当拆成可组合的单元：早餐送到家、每周助洁、家庭医生按需上门。步行十五分钟圈里如果没有一个能坐下、能问事的点，清单再完整也只是通知。</p>
+          <p class="body-p">这不只是民政一件事。家属、社区工作者、医生和街道看到的断点往往不同。把需求摸排、派单、上门、记录、回访写成可检查的步骤，再按实际使用扩展组合，比先建大型设施更靠得住。老年人记住的，是上周谁来过、下次什么时候再来。</p>
+        </div>
+        <div class="st-loading skel" aria-hidden="true"><span class="sk-bar lg" style="width:74%"></span><span class="sk-bar" style="width:95%"></span><span class="sk-bar" style="width:90%"></span><span class="sk-bar" style="width:86%"></span><span class="sk-bar" style="width:60%"></span></div>
+        <div class="st-empty empty"><span class="symbol" aria-hidden="true">▤</span><b>合稿将在这里展示</b>三份稿全部完成后，合并结果会出现在这张卡里。</div>
+      </div>
+    </article>
+    <div class="actions">
+      <button type="button" class="btn quiet" data-demo="导出本稿">导出本稿</button>
+      <button type="button" class="btn primary" data-demo="进入图文生成">进入图文生成</button>
+    </div>
+  </section>
+
+  <section class="block" data-kind="illus">
+    <div class="block-h"><h2>4. 图文稿</h2><p class="hint">对应第 4 步 · 封面在标题下，配图插在段落之间</p></div>
+    <article class="pv a-card">
+      <div class="a-head" data-fold>
+        <h3 class="ttl">图文稿预览</h3>
+        <span class="tag">图文稿</span>
+        <span class="tag neutral">封面 1 + 配图 2</span>
+        <span class="meta"><span>1340 字</span><span class="chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6.5L8 10.5L12 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+      </div>
+      <div class="a-body">
+        <div class="st-ready">
+          <h4 class="body-title">社区养老服务如何走到老年人身边</h4>
+          <p class="sample-flag">以下为原型示例正文与配图占位，不代表真实生成内容</p>
+          <figure class="ph"><div class="ph-block ph-16x9">示例配图 · 封面</div></figure>
+          <p class="body-p">社区养老要走进老年人的日常，先要把服务从网点挪到身边。和机构养老不同，这里比的不是床位数，而是晚饭去哪里吃、白天有谁在。</p>
+          <figure class="ph"><div class="ph-block ph-4x3">示例配图 · 1</div><figcaption>配图 1 · 十五分钟服务圈示意</figcaption></figure>
+          <p class="body-p">服务应当拆成可组合的单元：早餐送到家、每周助洁、家庭医生按需上门。步行十五分钟圈里如果没有一个能坐下、能问事的点，清单再完整也只是通知。</p>
+          <figure class="ph"><div class="ph-block ph-4x3">示例配图 · 2</div><figcaption>配图 2 · 上门服务组合</figcaption></figure>
+          <p class="body-p">把需求摸排、派单、上门、记录、回访写成可检查的步骤，再按实际使用扩展组合，比先建大型设施更靠得住。老年人记住的，是上周谁来过、下次什么时候再来。</p>
+        </div>
+        <div class="st-loading skel" aria-hidden="true"><span class="sk-bar lg" style="width:70%"></span><span class="sk-img"></span><span class="sk-bar" style="width:94%"></span><span class="sk-bar" style="width:80%"></span></div>
+        <div class="st-empty empty"><span class="symbol" aria-hidden="true">▧</span><b>为这篇文章，接上画面</b>选择配图方式并开始生成后，封面和配图会插在正文相应位置。</div>
+      </div>
+    </article>
+    <div class="actions">
+      <button type="button" class="btn primary" data-demo="导出本稿">导出本稿</button>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== B ===================== -->
+<div class="scheme" id="scheme-b" hidden>
+  <section class="block" data-kind="orig">
+    <div class="block-h"><h2>1. 原稿正文预览</h2><p class="hint">对应第 2 步 · 纸面阅读感 · 操作在纸面底部</p></div>
+    <div class="b-desk">
+      <article class="pv b-paper">
+        <div class="b-tools">
+          <span class="kicker">原稿 · 社会民生 · 862 字</span>
+          <button type="button" class="fold-btn" data-fold aria-label="折叠预览"><span class="chev"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6.5L8 10.5L12 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+        </div>
+        <div class="st-ready b-ready">
+          <h3 class="body-title">社区养老服务如何走到老年人身边</h3>
+          <p class="sample-flag">以下为原型示例正文，不代表真实生成内容</p>
+          <p class="body-p">社区养老要走进老年人的日常，先要把服务从「网点」挪到「身边」。食堂、助浴、巡诊如果只开在街道中心，步行超过十五分钟，许多高龄老人就会放弃。</p>
+          <p class="body-p">把服务拆成可组合的单元，比新建一处大型设施更有效。早餐送到家、每周一次助洁、家庭医生按需上门，这些小事叠在一起，才构成能被感知的「身边服务」。</p>
+          <p class="body-p">社区工作人员的体会是：老年人记住的不是政策名称，而是上周谁来过、下次什么时候再来。稳定的人、稳定的节奏，比临时的集中活动更重要。</p>
+        </div>
+        <div class="st-loading skel" aria-hidden="true"><span class="sk-bar lg" style="width:78%"></span><span class="sk-bar" style="width:96%"></span><span class="sk-bar" style="width:93%"></span><span class="sk-bar" style="width:90%"></span><span class="sk-bar" style="width:70%"></span></div>
+        <div class="st-empty empty b-empty-paper"><div><span class="symbol" aria-hidden="true">▤</span><b>这篇文章，从原稿开始</b>生成后，正文会按纸面样式在这里展开。</div></div>
+        <div class="actions">
+          <button type="button" class="btn quiet" data-demo="导出本稿">导出本稿</button>
+          <button type="button" class="btn primary" data-demo="进入图文生成">进入图文生成</button>
+          <button type="button" class="btn primary" data-demo="原稿深度加工">原稿深度加工</button>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="block" data-kind="drafts">
+    <div class="block-h"><h2>2. 三稿</h2><p class="hint">对应 3.3 / 3.4 · 三份纸面上下叠放，像一组文稿</p></div>
+    <div class="b-desk b-stack">
+      <article class="pv b-paper">
+        <div class="b-tools">
+          <span class="kicker">三稿 · 差异化 · 910 字</span>
+          <button type="button" class="fold-btn" data-fold aria-label="折叠预览"><span class="chev"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6.5L8 10.5L12 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+        </div>
+        <div class="st-ready b-ready">
+          <h3 class="body-title">社区养老，和机构养老比的不是床位</h3>
+          <p class="sample-flag">示例正文 · 差异化方向</p>
+          <p class="body-p">和机构养老不同，社区养老比的不是床位数，而是「晚上去哪里吃饭、白天有谁在」。把服务做成可走到家门口的单元，才能跟机构养老形成真正的差异。</p>
+          <p class="body-p">差异首先来自距离。十五分钟步行圈里如果没有一个能坐下、能问事、能简单处置的点，再完整的服务清单也只是墙上的通知。其次来自关系：同一位护理员连续上门，比每周换人更能让老人安心。</p>
+        </div>
+        <div class="st-loading skel" aria-hidden="true"><span class="sk-bar lg" style="width:66%"></span><span class="sk-bar" style="width:94%"></span><span class="sk-bar" style="width:80%"></span></div>
+        <div class="st-empty empty"><span class="symbol" aria-hidden="true">✎</span><b>差异化稿待生成</b>生成后，三份纸面会依次叠在这张书桌上。</div>
+        <div class="actions">
+          <button type="button" class="btn quiet" data-demo="导出本稿">导出本稿</button>
+          <button type="button" class="btn primary" data-demo="进入图文生成">进入图文生成</button>
+        </div>
+      </article>
+      <article class="pv b-paper">
+        <div class="b-tools">
+          <span class="kicker">三稿 · 广度 · 1024 字</span>
+          <button type="button" class="fold-btn" data-fold aria-label="折叠预览"><span class="chev"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6.5L8 10.5L12 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+        </div>
+        <div class="st-ready b-ready">
+          <h3 class="body-title">社区养老牵动的，不只是民政一件事</h3>
+          <p class="sample-flag">示例正文 · 广度方向</p>
+          <p class="body-p">家属最关心夜里有没有人可叫，社区工作者关心派单会不会叠床架屋，医生关心上门有没有基本药品，街道则要同时面对场地、人员和经费。</p>
+          <p class="body-p">把这些角色放到同一张图上，才能看到服务断在哪里。广度稿用更多场景铺开：老旧小区、新建社区、子女不在身边的家庭，以及季节性的照护高峰。</p>
+        </div>
+        <div class="st-loading skel" aria-hidden="true"><span class="sk-bar lg" style="width:70%"></span><span class="sk-bar" style="width:90%"></span><span class="sk-bar" style="width:76%"></span></div>
+        <div class="st-empty empty"><span class="symbol" aria-hidden="true">✎</span><b>广度稿待生成</b>生成后，三份纸面会依次叠在这张书桌上。</div>
+        <div class="actions">
+          <button type="button" class="btn quiet" data-demo="导出本稿">导出本稿</button>
+          <button type="button" class="btn primary" data-demo="进入图文生成">进入图文生成</button>
+        </div>
+      </article>
+      <article class="pv b-paper">
+        <div class="b-tools">
+          <span class="kicker">三稿 · 深度 · 1186 字</span>
+          <button type="button" class="fold-btn" data-fold aria-label="折叠预览"><span class="chev"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6.5L8 10.5L12 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+        </div>
+        <div class="st-ready b-ready">
+          <h3 class="body-title">「走到身边」要先回答谁来、走多远、多久一次</h3>
+          <p class="sample-flag">示例正文 · 深度方向</p>
+          <p class="body-p">要把这句话落成可执行的安排，先得回答三个问题：谁来、走多远、多久来一次。服务半径超过步行十五分钟，响应就会掉到老人不愿等待的区间。</p>
+          <p class="body-p">把流程拆开：需求摸排、派单、上门、记录、回访。与其先建中心，不如先保证每周固定频次的上门，再按实际使用扩展组合。</p>
+        </div>
+        <div class="st-loading skel" aria-hidden="true"><span class="sk-bar lg" style="width:72%"></span><span class="sk-bar" style="width:92%"></span><span class="sk-bar" style="width:68%"></span></div>
+        <div class="st-empty empty"><span class="symbol" aria-hidden="true">✎</span><b>深度稿待生成</b>生成后，三份纸面会依次叠在这张书桌上。</div>
+        <div class="actions">
+          <button type="button" class="btn quiet" data-demo="导出本稿">导出本稿</button>
+          <button type="button" class="btn primary" data-demo="进入图文生成">进入图文生成</button>
+          <button type="button" class="btn primary" data-demo="合并三稿">合并三稿</button>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="block" data-kind="merged">
+    <div class="block-h"><h2>3. 三稿合稿</h2><p class="hint">对应 3.5 · 与原稿同一纸面规格，候选标题在标题上方</p></div>
+    <div class="b-desk">
+      <article class="pv b-paper">
+        <div class="b-tools">
+          <span class="kicker">三稿合稿 · 社会民生 · 1340 字</span>
+          <button type="button" class="fold-btn" data-fold aria-label="折叠预览"><span class="chev"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6.5L8 10.5L12 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+        </div>
+        <div class="st-ready b-ready">
+          <div class="cands b-cands">
+            <span class="lab">候选标题</span>
+            <label class="cand"><input type="radio" name="b-merged-title" checked><span>社区养老服务如何走到老年人身边</span></label>
+            <label class="cand"><input type="radio" name="b-merged-title"><span>把养老服务从网点搬到身边</span></label>
+            <label class="cand"><input type="radio" name="b-merged-title"><span>十五分钟里的社区养老</span></label>
+          </div>
+          <h3 class="body-title">社区养老服务如何走到老年人身边</h3>
+          <p class="sample-flag">以下为原型示例正文，不代表真实生成内容</p>
+          <p class="body-p">社区养老要走进老年人的日常，先要把服务从网点挪到身边。和机构养老不同，这里比的不是床位数，而是晚饭去哪里吃、白天有谁在。</p>
+          <p class="body-p">服务应当拆成可组合的单元：早餐送到家、每周助洁、家庭医生按需上门。步行十五分钟圈里如果没有一个能坐下、能问事的点，清单再完整也只是通知。</p>
+          <p class="body-p">这不只是民政一件事。家属、社区工作者、医生和街道看到的断点往往不同。把需求摸排、派单、上门、记录、回访写成可检查的步骤，再按实际使用扩展组合，比先建大型设施更靠得住。老年人记住的，是上周谁来过、下次什么时候再来。</p>
+        </div>
+        <div class="st-loading skel" aria-hidden="true"><span class="sk-bar lg" style="width:80%"></span><span class="sk-bar" style="width:96%"></span><span class="sk-bar" style="width:90%"></span><span class="sk-bar" style="width:72%"></span></div>
+        <div class="st-empty empty"><span class="symbol" aria-hidden="true">▤</span><b>合稿将在这里展示</b>合并完成后，合稿会按同一纸面规格展开。</div>
+        <div class="actions">
+          <button type="button" class="btn quiet" data-demo="导出本稿">导出本稿</button>
+          <button type="button" class="btn primary" data-demo="进入图文生成">进入图文生成</button>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="block" data-kind="illus">
+    <div class="block-h"><h2>4. 图文稿</h2><p class="hint">对应第 4 步 · 封面通栏铺在标题之上，配图插在文中</p></div>
+    <div class="b-desk">
+      <article class="pv b-paper">
+        <div class="b-tools">
+          <span class="kicker">图文稿 · 封面 1 + 配图 2 · 1340 字</span>
+          <button type="button" class="fold-btn" data-fold aria-label="折叠预览"><span class="chev"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6.5L8 10.5L12 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+        </div>
+        <div class="st-ready b-ready">
+          <figure class="ph bleed"><div class="ph-block ph-16x9">示例配图 · 封面</div></figure>
+          <h3 class="body-title">社区养老服务如何走到老年人身边</h3>
+          <p class="sample-flag">以下为原型示例正文与配图占位，不代表真实生成内容</p>
+          <p class="body-p">社区养老要走进老年人的日常，先要把服务从网点挪到身边。和机构养老不同，这里比的不是床位数，而是晚饭去哪里吃、白天有谁在。</p>
+          <figure class="ph"><div class="ph-block ph-16x9">示例配图 · 1</div><figcaption>配图 1 · 十五分钟服务圈示意</figcaption></figure>
+          <p class="body-p">服务应当拆成可组合的单元：早餐送到家、每周助洁、家庭医生按需上门。步行十五分钟圈里如果没有一个能坐下、能问事的点，清单再完整也只是通知。</p>
+          <figure class="ph"><div class="ph-block ph-16x9">示例配图 · 2</div><figcaption>配图 2 · 上门服务组合</figcaption></figure>
+          <p class="body-p">把需求摸排、派单、上门、记录、回访写成可检查的步骤，再按实际使用扩展组合，比先建大型设施更靠得住。老年人记住的，是上周谁来过、下次什么时候再来。</p>
+        </div>
+        <div class="st-loading skel" aria-hidden="true"><span class="sk-img"></span><span class="sk-bar lg" style="width:74%"></span><span class="sk-bar" style="width:92%"></span></div>
+        <div class="st-empty empty"><span class="symbol" aria-hidden="true">▧</span><b>为这篇文章，接上画面</b>生成后，封面会通栏铺在标题之上，配图插在对应段落之间。</div>
+        <div class="actions">
+          <button type="button" class="btn primary" data-demo="导出本稿">导出本稿</button>
+        </div>
+      </article>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== C ===================== -->
+<div class="scheme" id="scheme-c" hidden>
+  <section class="block" data-kind="orig">
+    <div class="block-h"><h2>1. 原稿正文预览</h2><p class="hint">对应第 2 步 · 统一外壳，原稿只有一个标签</p></div>
+    <article class="pv c-shell">
+      <div class="c-bar">
+        <div class="c-tabs" role="tablist" aria-label="原稿">
+          <button type="button" class="is-on" data-fold>原稿</button>
+        </div>
+        <span class="meta">社会民生 · 862 字 <span class="chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6.5L8 10.5L12 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+      </div>
+      <div class="c-body">
+        <div class="st-ready">
+          <h4 class="body-title">社区养老服务如何走到老年人身边</h4>
+          <p class="sample-flag">以下为原型示例正文，不代表真实生成内容</p>
+          <p class="body-p">社区养老要走进老年人的日常，先要把服务从「网点」挪到「身边」。食堂、助浴、巡诊如果只开在街道中心，步行超过十五分钟，许多高龄老人就会放弃。</p>
+          <p class="body-p">把服务拆成可组合的单元，比新建一处大型设施更有效。早餐送到家、每周一次助洁、家庭医生按需上门，这些小事叠在一起，才构成能被感知的「身边服务」。</p>
+          <p class="body-p">社区工作人员的体会是：老年人记住的不是政策名称，而是上周谁来过、下次什么时候再来。稳定的人、稳定的节奏，比临时的集中活动更重要。</p>
+        </div>
+        <div class="st-loading skel" aria-hidden="true"><span class="sk-bar lg" style="width:70%"></span><span class="sk-bar" style="width:96%"></span><span class="sk-bar" style="width:88%"></span><span class="sk-bar" style="width:60%"></span></div>
+        <div class="st-empty empty"><span class="symbol" aria-hidden="true">▤</span><b>这篇文章，从原稿开始</b>生成后，正文出现在同一外壳里。</div>
+        <div class="actions">
+          <button type="button" class="btn quiet" data-demo="导出本稿">导出本稿</button>
+          <button type="button" class="btn primary" data-demo="进入图文生成">进入图文生成</button>
+          <button type="button" class="btn primary" data-demo="原稿深度加工">原稿深度加工</button>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="block" data-kind="drafts">
+    <div class="block-h"><h2>2. 三稿</h2><p class="hint">对应 3.3 / 3.4 · 同一外壳内用标签切换三份，一次看一篇</p></div>
+    <article class="pv c-shell" data-tabset="c-drafts">
+      <div class="c-bar">
+        <div class="c-tabs" role="tablist" aria-label="三稿方向">
+          <button type="button" class="is-on" data-tab="diff" aria-selected="true">差异化</button>
+          <button type="button" data-tab="broad" aria-selected="false">广度</button>
+          <button type="button" data-tab="deep" aria-selected="false">深度</button>
+        </div>
+        <span class="meta" id="cDraftMeta">910 字 <button type="button" class="fold-btn" data-fold aria-label="折叠预览"><span class="chev"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6.5L8 10.5L12 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button></span>
+      </div>
+      <div class="c-body">
+        <div class="st-ready">
+          <div data-pane="diff">
+            <h4 class="body-title">社区养老，和机构养老比的不是床位</h4>
+            <p class="sample-flag">示例正文 · 差异化方向</p>
+            <p class="body-p">和机构养老不同，社区养老比的不是床位数，而是「晚上去哪里吃饭、白天有谁在」。把服务做成可走到家门口的单元，才能跟机构养老形成真正的差异。</p>
+            <p class="body-p">差异首先来自距离。十五分钟步行圈里如果没有一个能坐下、能问事、能简单处置的点，再完整的服务清单也只是墙上的通知。</p>
+            <p class="body-p">其次来自关系。同一位护理员连续上门，比每周换人更能让老人安心。这篇把关系链写在前，设施和设备放在后。</p>
+          </div>
+          <div data-pane="broad" hidden>
+            <h4 class="body-title">社区养老牵动的，不只是民政一件事</h4>
+            <p class="sample-flag">示例正文 · 广度方向</p>
+            <p class="body-p">家属最关心夜里有没有人可叫，社区工作者关心派单会不会叠床架屋，医生关心上门有没有基本药品，街道则要同时面对场地、人员和经费。</p>
+            <p class="body-p">把这些角色放到同一张图上，才能看到服务断在哪里。早餐送到了，但助浴排不上——问题往往出在角色之间。</p>
+            <p class="body-p">广度稿用更多场景铺开：老旧小区、新建社区、子女不在身边的家庭，以及季节性的照护高峰。</p>
+          </div>
+          <div data-pane="deep" hidden>
+            <h4 class="body-title">「走到身边」要先回答谁来、走多远、多久一次</h4>
+            <p class="sample-flag">示例正文 · 深度方向</p>
+            <p class="body-p">要把这句话落成可执行的安排，先得回答三个问题：谁来、走多远、多久来一次。服务半径超过步行十五分钟，响应就会掉到老人不愿等待的区间。</p>
+            <p class="body-p">把流程拆开：需求摸排、派单、上门、记录、回访。每一步都对应责任人和可检查的结果，而不是停留在「加强服务」。</p>
+            <p class="body-p">与其先建中心，不如先保证每周固定频次的上门，再按实际使用扩展组合。</p>
+          </div>
+        </div>
+        <div class="st-loading skel" aria-hidden="true"><span class="sk-bar lg" style="width:62%"></span><span class="sk-bar" style="width:94%"></span><span class="sk-bar" style="width:85%"></span></div>
+        <div class="st-empty empty"><span class="symbol" aria-hidden="true">✎</span><b>三稿将在这里展示</b>生成后，可用顶部标签在三份之间切换。</div>
+        <div class="actions">
+          <button type="button" class="btn quiet" data-demo="导出全部稿件">导出全部稿件</button>
+          <button type="button" class="btn quiet" data-demo="导出本稿">导出本稿</button>
+          <button type="button" class="btn primary" data-demo="进入图文生成">进入图文生成</button>
+          <button type="button" class="btn primary" data-demo="合并三稿">合并三稿</button>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="block" data-kind="merged">
+    <div class="block-h"><h2>3. 三稿合稿</h2><p class="hint">对应 3.5 · 同一外壳，标签位显示「合稿」</p></div>
+    <article class="pv c-shell">
+      <div class="c-bar">
+        <div class="c-tabs" role="tablist" aria-label="合稿">
+          <button type="button" class="is-on" data-fold>合稿</button>
+        </div>
+        <span class="meta">社会民生 · 1340 字 <span class="chev" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6.5L8 10.5L12 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+      </div>
+      <div class="c-body">
+        <div class="st-ready">
+          <div class="cands">
+            <span class="lab">候选标题</span>
+            <label class="cand"><input type="radio" name="c-merged-title" checked><span>社区养老服务如何走到老年人身边</span></label>
+            <label class="cand"><input type="radio" name="c-merged-title"><span>把养老服务从网点搬到身边</span></label>
+            <label class="cand"><input type="radio" name="c-merged-title"><span>十五分钟里的社区养老</span></label>
+          </div>
+          <h4 class="body-title">社区养老服务如何走到老年人身边</h4>
+          <p class="sample-flag">以下为原型示例正文，不代表真实生成内容</p>
+          <p class="body-p">社区养老要走进老年人的日常，先要把服务从网点挪到身边。和机构养老不同，这里比的不是床位数，而是晚饭去哪里吃、白天有谁在。</p>
+          <p class="body-p">服务应当拆成可组合的单元：早餐送到家、每周助洁、家庭医生按需上门。步行十五分钟圈里如果没有一个能坐下、能问事的点，清单再完整也只是通知。</p>
+          <p class="body-p">这不只是民政一件事。家属、社区工作者、医生和街道看到的断点往往不同。把需求摸排、派单、上门、记录、回访写成可检查的步骤，再按实际使用扩展组合，比先建大型设施更靠得住。老年人记住的，是上周谁来过、下次什么时候再来。</p>
+        </div>
+        <div class="st-loading skel" aria-hidden="true"><span class="sk-bar lg" style="width:76%"></span><span class="sk-bar" style="width:94%"></span><span class="sk-bar" style="width:88%"></span></div>
+        <div class="st-empty empty"><span class="symbol" aria-hidden="true">▤</span><b>合稿将在这里展示</b>合并完成后，合稿出现在同一外壳里。</div>
+        <div class="actions">
+          <button type="button" class="btn quiet" data-demo="导出本稿">导出本稿</button>
+          <button type="button" class="btn primary" data-demo="进入图文生成">进入图文生成</button>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="block" data-kind="illus">
+    <div class="block-h"><h2>4. 图文稿</h2><p class="hint">对应第 4 步 · 标签可在「图文混排」与「配图一览」之间切换</p></div>
+    <article class="pv c-shell" data-tabset="c-ill">
+      <div class="c-bar">
+        <div class="c-tabs" role="tablist" aria-label="图文稿视图">
+          <button type="button" class="is-on" data-tab="mix" aria-selected="true">图文混排</button>
+          <button type="button" data-tab="gallery" aria-selected="false">配图一览</button>
+        </div>
+        <span class="meta">封面 1 + 配图 2 · 1340 字 <button type="button" class="fold-btn" data-fold aria-label="折叠预览"><span class="chev"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6.5L8 10.5L12 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button></span>
+      </div>
+      <div class="c-body">
+        <div class="st-ready">
+          <div data-pane="mix">
+            <div class="c-strip" aria-label="配图速览">
+              <figure class="ph"><div class="ph-block">封面</div></figure>
+              <figure class="ph"><div class="ph-block">配图 1</div></figure>
+              <figure class="ph"><div class="ph-block">配图 2</div></figure>
+            </div>
+            <h4 class="body-title">社区养老服务如何走到老年人身边</h4>
+            <p class="sample-flag">以下为原型示例正文与配图占位，不代表真实生成内容</p>
+            <p class="body-p">社区养老要走进老年人的日常，先要把服务从网点挪到身边。和机构养老不同，这里比的不是床位数，而是晚饭去哪里吃、白天有谁在。</p>
+            <figure class="ph"><div class="ph-block ph-16x9">示例配图 · 1</div><figcaption>配图 1 · 十五分钟服务圈示意</figcaption></figure>
+            <p class="body-p">服务应当拆成可组合的单元：早餐送到家、每周助洁、家庭医生按需上门。步行十五分钟圈里如果没有一个能坐下、能问事的点，清单再完整也只是通知。</p>
+            <figure class="ph"><div class="ph-block ph-16x9">示例配图 · 2</div><figcaption>配图 2 · 上门服务组合</figcaption></figure>
+            <p class="body-p">把需求摸排、派单、上门、记录、回访写成可检查的步骤，再按实际使用扩展组合，比先建大型设施更靠得住。</p>
+          </div>
+          <div data-pane="gallery" hidden>
+            <p class="sample-flag">配图一览 · 示例占位，不插入正文</p>
+            <figure class="ph"><div class="ph-block ph-16x9">示例配图 · 封面</div><figcaption>封面</figcaption></figure>
+            <div class="c-strip" style="display:grid;grid-template-columns:1fr 1fr;overflow:visible">
+              <figure class="ph" style="flex:none"><div class="ph-block ph-4x3" style="width:100%">示例配图 · 1</div><figcaption>配图 1</figcaption></figure>
+              <figure class="ph" style="flex:none"><div class="ph-block ph-4x3" style="width:100%">示例配图 · 2</div><figcaption>配图 2</figcaption></figure>
+            </div>
+          </div>
+        </div>
+        <div class="st-loading skel" aria-hidden="true"><span class="sk-img" style="aspect-ratio:16/5"></span><span class="sk-bar lg" style="width:68%"></span><span class="sk-bar" style="width:90%"></span></div>
+        <div class="st-empty empty"><span class="symbol" aria-hidden="true">▧</span><b>为这篇文章，接上画面</b>生成后，可在「图文混排」和「配图一览」之间切换查看。</div>
+        <div class="actions">
+          <button type="button" class="btn primary" data-demo="导出本稿">导出本稿</button>
+        </div>
+      </div>
+    </article>
+  </section>
+</div>
+
+</div>
+
+<p class="foot">AIGenPlatform · 稿件预览区统一方案 v0.1.0 · 2026-11-12（北京时间）· 控件规范 v0.2.0（高 36 / 主按钮 40 / 圆角 12 / 主色 #1c5fc4）· 正文与配图均为示例</p>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  var leads={
+    a:'方案 A · 卡片并列。四种稿共用同一张结果卡：顶栏放类型、分类、字数和折叠箭头，正文在卡内，操作按钮固定在卡下。三稿三张卡并排，一次看完三份差异；图文稿把封面放在标题下、配图插在段与段之间。',
+    b:'方案 B · 文档纸面。预览像放在书桌上的文稿：大标题、更疏的行距，操作收在纸面底部。三稿是三份纸上下叠放；图文稿把封面通栏铺在标题之上，配图以接近杂志的方式插在文中。',
+    c:'方案 C · 标签切换。四种稿共用同一外壳，顶部标签是唯一的切换方式。三稿用「差异化 / 广度 / 深度」切换，一次只看一份；图文稿可在「图文混排」和「配图一览」之间切换。'
+  };
+  var page=document.getElementById('page');
+  var lead=document.getElementById('schemeLead');
+  var toastEl=document.getElementById('toast');
+  var toastTimer=null;
+  var draftWords={diff:'910 字',broad:'1024 字',deep:'1186 字'};
+
+  function setSeg(root, attr, value){
+    root.querySelectorAll('['+attr+']').forEach(function(b){
+      var on=b.getAttribute(attr)===value;
+      b.classList.toggle('is-on',on);
+      b.setAttribute('aria-selected',on?'true':'false');
+    });
+  }
+
+  document.getElementById('schemeTabs').addEventListener('click',function(e){
+    var btn=e.target.closest('[data-scheme]');
+    if(!btn)return;
+    var s=btn.getAttribute('data-scheme');
+    setSeg(document.getElementById('schemeTabs'),'data-scheme',s);
+    document.querySelectorAll('.scheme').forEach(function(p){p.hidden=p.id!=='scheme-'+s});
+    lead.innerHTML='<b>'+leads[s].split('。')[0]+'。</b>'+leads[s].slice(leads[s].indexOf('。')+1);
+  });
+
+  document.getElementById('stateTabs').addEventListener('click',function(e){
+    var btn=e.target.closest('[data-state]');
+    if(!btn)return;
+    var st=btn.getAttribute('data-state');
+    setSeg(document.getElementById('stateTabs'),'data-state',st);
+    page.classList.remove('is-loading','is-empty');
+    if(st==='loading')page.classList.add('is-loading');
+    if(st==='empty')page.classList.add('is-empty');
+  });
+
+  document.addEventListener('click',function(e){
+    var fold=e.target.closest('[data-fold]');
+    if(fold){
+      if(fold.tagName==='BUTTON'||fold.tagName==='INPUT'||fold.hasAttribute('data-tab')){
+        /* tab buttons may also be used as fold only when they are the single label */
+      }
+      if(fold.hasAttribute('data-tab'))return;
+      var card=fold.closest('.pv');
+      if(card){
+        card.classList.toggle('is-collapsed');
+        var open=!card.classList.contains('is-collapsed');
+        fold.setAttribute('aria-expanded',open?'true':'false');
+      }
+      return;
+    }
+    var tab=e.target.closest('[data-tab]');
+    if(tab){
+      var box=tab.closest('[data-tabset]');
+      if(!box)return;
+      var id=tab.getAttribute('data-tab');
+      box.querySelectorAll('[data-tab]').forEach(function(b){
+        var on=b===tab;
+        b.classList.toggle('is-on',on);
+        b.setAttribute('aria-selected',on?'true':'false');
+      });
+      box.querySelectorAll('[data-pane]').forEach(function(p){
+        p.hidden=p.getAttribute('data-pane')!==id;
+      });
+      if(box.getAttribute('data-tabset')==='c-drafts'&&draftWords[id]){
+        var meta=document.getElementById('cDraftMeta');
+        if(meta){
+          var btn=meta.querySelector('.fold-btn');
+          meta.childNodes[0].textContent=draftWords[id]+' ';
+          if(btn&&btn.parentNode!==meta)meta.appendChild(btn);
+        }
+      }
+      return;
+    }
+    var demo=e.target.closest('[data-demo]');
+    if(demo){
+      toastEl.textContent='原型示例 · 「'+demo.getAttribute('data-demo')+'」不执行真实操作';
+      toastEl.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer=setTimeout(function(){toastEl.classList.remove('show')},1800);
+    }
+  });
+})();
+</script>
+</body>
+</html>
