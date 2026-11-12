@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-27",
+  "scope": "Local design artifact and browser review only; not production GUI or real Figma runtime validation.",
+  "static": {
+    "screenCount": 20,
+    "textNodeCount": 633,
+    "minimumFontPx": 14,
+    "inlineJavaScriptSyntax": "passed",
+    "figmaPluginSyntax": "passed",
+    "candidateTitlesWithin30Characters": true
+  },
+  "browser": {
+    "layoutScenesChecked": [
+      "step1",
+      "step2",
+      "step3",
+      "step4",
+      "step5",
+      "step6",
+      "running4",
+      "partial4",
+      "partial5",
+      "single5",
+      "dual5",
+      "preview5",
+      "breadth5",
+      "depth5",
+      "merging5",
+      "empty3",
+      "compact4"
+    ],
+    "horizontalOverflow": false,
+    "fixedFooterLogicalHeight": 72,
+    "checksPassed": [
+      "Two selected directions lead to dual-manuscript result, without merge action.",
+      "Title selection and expanded preview agree; dual-manuscript tabs stay limited to two.",
+      "Merged article preview keeps the merged-article page and selected title.",
+      "Illustration handoff names only the current direction and selected title.",
+      "Illustration flow proceeds through export format/directory selection.",
+      "Export directory survives reopening; chosen format and checked radio stay consistent.",
+      "Single export-all dialog reports one manuscript.",
+      "Escape closes the modal.",
+      "Changing idea preserves style; changing style preserves idea and returns to generation settings.",
+      "Running direction choices are disabled."
+    ],
+    "consoleErrorsObserved": []
+  },
+  "notVerified": [
+    "Real Figma plugin execution, node IDs, visual rendering and prototype transitions.",
+    "Native Tkinter widgets, Windows 125%/150% DPI, keyboard traversal and input method behavior.",
+    "Real model generation, resume persistence, filesystem export or production illustration handoff."
+  ]
+}

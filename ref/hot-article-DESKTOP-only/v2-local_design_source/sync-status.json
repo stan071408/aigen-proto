@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-27",
+  "status": "blocked",
+  "targetFileKey": "x3uNLbtFAS8MOCnCTPu7aH",
+  "intendedPageName": "03 · Windows 桌面版",
+  "figmaUpdated": false,
+  "createdNodeIds": [],
+  "blockers": [
+    "Figma MCP returned mcp_rate_limit_paywall: Starter plan tool call limit reached.",
+    "Normal desktop plugin import could not complete: screenshot capture timed out and input coordinate geometry was unavailable."
+  ],
+  "localDeliverables": ["design.json", "index.html", "figma-plugin/manifest.json", "figma-plugin/code.js"],
+  "realFigmaPluginExecutionVerified": false,
+  "oldFigmaPagesModified": false
+}

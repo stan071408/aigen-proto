@@ -1,0 +1,9 @@
+{
+  "name": "AIDocStudio · Windows 热度图文工作台",
+  "id": "aidocstudio-hot-article-windows-design",
+  "api": "1.0.0",
+  "main": "code.js",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {"allowedDomains": ["none"]}
+}

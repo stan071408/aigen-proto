@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIGenPlatform 控件规范 v0.2.0 · 已确认（2026-11-12）</title>
+<style>
+:root{
+  --bg:#f1f6fc;--ink:#14213a;--muted:#596579;--faint:#8592a6;--line:#d9e3f0;
+  --accent:#1c5fc4;--accent-d:#164ea3;--soft:#e3edfc;--navy:#0f2348;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;
+  --ctl-h:36px;--ctl-h-lg:40px;--ctl-h-sm:32px;
+  --ctl-radius:12px;--ctl-radius-sm:8px;--ctl-radius-lg:16px;--ctl-radius-pill:999px;
+  --ctl-border:#6b7c94;--ctl-border-w:2px;
+  --ctl-step-w:92px;--ctl-spin-bg:#f1f3f6;--ctl-spin-fg:#7a8699;
+  --ctl-focus:var(--accent);--ctl-focus-ring:0 0 0 3px rgba(28,95,196,.30);
+  --ctl-bg:#ffffff;--ctl-text:var(--ink);--ctl-accent:var(--accent);--ctl-soft:var(--soft);
+  --ctl-muted:#5b6b82;--ctl-line:#d4dde8;--ctl-check:16px;--ctl-gap:10px;
+  --ctl-shadow:inset 0 1px 2px rgba(20,33,58,.14);
+  --ctl-hover:#4e627c;
+  --ctl-error:#c42b2b;--ctl-error-ring:0 0 0 3px rgba(196,43,43,.18);
+  --ctl-disabled-bg:#e8edf3;--ctl-ph:#8b97a8;
+  --ctl-danger:#c42b2b;--ctl-danger-d:#9e2222;--ctl-ok:#17734a;--ctl-ok-bg:#e3f4ea;
+  --ctl-warn:#d4570a;--ctl-warn-bg:#fff3ea;
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;
+  --fs-xs:11px;--fs-sm:12px;--fs-md:13px;--fs-body:14px;--fs-lg:16px;--fs-xl:18px;--fs-2xl:22px;--fs-3xl:28px;
+  --shadow-rest:0 1px 2px rgba(20,33,58,.08);--shadow-md:0 8px 24px rgba(15,35,72,.12);--shadow-lg:0 16px 48px rgba(15,35,72,.22);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font:var(--fs-body)/1.65 var(--sans);color:var(--ink);background:var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+img{max-width:100%}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;background:#eef3fa;padding:1px 5px;border-radius:4px;color:#0f2348}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;height:52px;padding:0 20px 0 24px;background:#fff;border-bottom:1px solid var(--line)}
+.top b{font-size:15px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+.ver{flex:none;font-size:11px;color:#5b6b82;background:#eef3fa;border-radius:999px;padding:2px 8px;white-space:nowrap}
+.note{flex:1 1 auto;color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.layout{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:calc(100% - 52px)}
+.toc{position:sticky;top:52px;align-self:start;height:calc(100vh - 52px);overflow:auto;padding:16px 12px 32px;border-right:1px solid var(--line);background:#f7faff}
+.toc a{display:block;padding:7px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:13px}
+.toc a:hover{background:#fff;color:var(--ink)}
+.toc a.on{background:var(--soft);color:var(--accent);font-weight:600}
+.toc .g{margin:14px 10px 6px;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--faint);text-transform:uppercase}
+main{padding:28px 32px 80px;max-width:1080px}
+section{scroll-margin-top:68px;margin-bottom:40px}
+h1{margin:0 0 8px;font-size:var(--fs-3xl);line-height:1.2;letter-spacing:-.02em}
+.lead{margin:0 0 24px;color:var(--muted);font-size:15px;max-width:720px}
+h2{margin:0 0 12px;font-size:var(--fs-xl);padding-bottom:8px;border-bottom:1px solid var(--line)}
+h3{margin:20px 0 10px;font-size:var(--fs-lg)}
+.sub{margin:-6px 0 14px;color:var(--muted);font-size:13px}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--ctl-radius-lg);padding:18px 18px 16px;box-shadow:var(--shadow-rest)}
+.grid{display:grid;gap:14px}
+.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.stack{display:flex;flex-direction:column;gap:10px}
+.kicker{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:6px}
+.hint{font-size:12px;color:var(--muted)}
+.swatch{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted)}
+.swatch i{display:block;height:48px;border-radius:10px;border:1px solid rgba(20,33,58,.08)}
+.swatch b{color:var(--ink);font-weight:650;font-size:12px}
+.scale{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+.token-table{width:100%;border-collapse:collapse;font-size:13px}
+.token-table th,.token-table td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.token-table th{font-size:12px;color:var(--muted);font-weight:600}
+.token-table tr:last-child td{border-bottom:0}
+.demo-label{font-size:11px;color:var(--faint);margin-bottom:6px}
+.state-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+@media (max-width:1100px){.state-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.layout{grid-template-columns:1fr}.toc{display:none}}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;box-sizing:border-box;border-radius:var(--ctl-radius);font-weight:550;line-height:1;white-space:nowrap;border:1px solid transparent;background:transparent;transition:background .15s,border-color .15s,box-shadow .15s,color .15s;padding:0 16px}
+.btn:focus-visible{outline:0;box-shadow:var(--ctl-focus-ring)}
+.btn[disabled],.btn.is-disabled{opacity:.55;cursor:not-allowed}
+.btn-lg{height:var(--ctl-h-lg);min-height:var(--ctl-h-lg);padding:0 16px;font-size:14px}
+.btn-md{height:var(--ctl-h);min-height:var(--ctl-h);padding:0 16px;font-size:13px}
+.btn-sm{height:var(--ctl-h-sm);min-height:var(--ctl-h-sm);padding:0 12px;font-size:12px}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover:not([disabled]):not(.is-disabled),.btn-primary.is-hover{background:var(--accent-d);border-color:var(--accent-d)}
+.btn-secondary{background:#fff;color:var(--accent);border:1px solid var(--accent)}
+.btn-secondary:hover:not([disabled]):not(.is-disabled),.btn-secondary.is-hover{background:var(--soft)}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn-ghost:hover:not([disabled]):not(.is-disabled),.btn-ghost.is-hover{background:#fff;border-color:var(--ctl-hover)}
+.btn-link{background:transparent;border:0;color:var(--accent);padding:2px 4px;height:auto;min-height:0;font-size:12px;font-weight:550;border-radius:4px}
+.btn-link:hover:not([disabled]):not(.is-disabled),.btn-link.is-hover{text-decoration:underline}
+.btn-danger{background:var(--ctl-danger);color:#fff;border-color:var(--ctl-danger)}
+.btn-danger:hover:not([disabled]):not(.is-disabled),.btn-danger.is-hover{background:var(--ctl-danger-d);border-color:var(--ctl-danger-d)}
+.btn-icon{width:var(--ctl-h);padding:0;flex:none}
+.btn-icon.btn-sm{width:var(--ctl-h-sm)}
+.btn-icon.btn-lg{width:var(--ctl-h-lg)}
+.btn .ico,.btn .spin{flex:none;display:block}
+.spin{width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Inputs */
+.field{display:flex;flex-direction:column;align-items:stretch;gap:6px;min-width:0}
+.field.inline{flex-direction:row;align-items:center;gap:12px}
+.field.inline .fld-label{margin:0;min-width:6.5em;padding-top:0}
+.fld-label{margin:0;font-size:12px;font-weight:600;color:var(--ink)}
+.fld-err{margin:0;font-size:12px;line-height:1.45;color:var(--ctl-error)}
+.inp,textarea.inp{
+  box-sizing:border-box;width:100%;height:var(--ctl-h);min-height:var(--ctl-h);
+  background:#fff;border:var(--ctl-border-w) solid var(--ctl-border);
+  border-radius:var(--ctl-radius);box-shadow:none;
+  padding:0 12px;color:var(--ink);caret-color:var(--ink);
+  transition:border-color .15s,box-shadow .15s;
+}
+textarea.inp{height:auto;min-height:76px;padding:8px 12px;resize:vertical;line-height:1.55}
+.inp::placeholder,textarea.inp::placeholder{color:var(--ctl-ph);opacity:1}
+.inp:hover,textarea.inp:hover,.inp.is-hover{border-color:var(--ctl-hover)}
+.inp:focus,textarea.inp:focus,.inp.is-focus{
+  outline:0;border-color:var(--accent);box-shadow:var(--ctl-focus-ring);
+}
+.inp:disabled,textarea.inp:disabled,.inp.is-disabled{
+  background:var(--ctl-disabled-bg);color:#7a8699;border-color:#b7c2d1;box-shadow:none;cursor:not-allowed;caret-color:transparent
+}
+.inp.is-invalid,textarea.inp.is-invalid,.field.is-invalid .inp{
+  border-color:var(--ctl-error);box-shadow:var(--ctl-error-ring)
+}
+.affix{display:flex;align-items:stretch;height:var(--ctl-h);border:var(--ctl-border-w) solid var(--ctl-border);border-radius:var(--ctl-radius);background:#fff;box-shadow:none;overflow:hidden}
+.affix:focus-within{border-color:var(--accent);box-shadow:var(--ctl-focus-ring)}
+.affix .inp{border:0;box-shadow:none;height:100%;min-height:0;border-radius:0}
+.affix .slot{display:flex;align-items:center;padding:0 10px;color:var(--ctl-muted);font-size:13px;background:#f6f8fb;border:0}
+.affix .slot.l{border-right:1px solid var(--ctl-line)}
+.affix .slot.r{border-left:1px solid var(--ctl-line)}
+.search{position:relative}
+.search .inp{padding-left:34px}
+.search .si{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--faint);pointer-events:none}
+.search .clr{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--faint);width:22px;height:22px;border-radius:6px;padding:0}
+.search .clr:hover{background:var(--soft);color:var(--ink)}
+.ta-meta{display:flex;justify-content:flex-end;font-size:12px;color:var(--faint)}
+
+/* Number */
+.ctl-step-wrap{display:inline-flex;align-items:center;gap:8px;vertical-align:middle}
+.ctl-step{
+  display:inline-flex;align-items:stretch;box-sizing:border-box;
+  width:var(--ctl-step-w);height:var(--ctl-h);
+  background:var(--ctl-bg);border:var(--ctl-border-w) solid var(--ctl-border);
+  border-radius:var(--ctl-radius);overflow:hidden;flex:0 0 var(--ctl-step-w);
+  transition:border-color .15s,box-shadow .15s;
+}
+.ctl-step:hover{border-color:var(--ctl-hover)}
+.ctl-step:focus-within{border-color:var(--accent);box-shadow:var(--ctl-focus-ring)}
+.ctl-step.is-invalid{border-color:var(--ctl-error);box-shadow:var(--ctl-error-ring)}
+.ctl-step-input{
+  flex:1 1 auto;min-width:0;width:auto;height:auto;margin:0;padding:0 4px 0 12px;
+  border:0;border-radius:0;box-shadow:none;background:transparent;outline:none;
+  text-align:left;font-size:14px;font-weight:500;color:#111827;
+  -moz-appearance:textfield;appearance:textfield;
+  line-height:calc(var(--ctl-h) - 4px);
+}
+.ctl-step-input::-webkit-inner-spin-button,.ctl-step-input::-webkit-outer-spin-button{-webkit-appearance:none;appearance:none;margin:0;display:none;width:0;height:0}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
+.ctl-spin{display:flex;flex-direction:column;flex:0 0 22px;width:22px;background:var(--ctl-spin-bg);border-left:1px solid #e3e7ee}
+.ctl-step-btn{flex:1 1 50%;margin:0;padding:0;width:100%;border:0;border-radius:0;box-shadow:none;background:transparent;color:var(--ctl-spin-fg);display:flex;align-items:center;justify-content:center;cursor:pointer;line-height:0}
+.ctl-step-btn:hover:not(:disabled){background:#e8f0fb;color:var(--accent)}
+.ctl-step-btn:active:not(:disabled){background:#d5e4f8}
+.ctl-step-btn:disabled{color:#c0c6d0;cursor:not-allowed}
+.ctl-step.is-disabled{background:var(--ctl-disabled-bg);border-color:#b7c2d1;box-shadow:none}
+.ctl-step.is-disabled .ctl-step-input{color:#7a8699;cursor:not-allowed}
+.ctl-step.is-disabled .ctl-spin{background:#e8edf3;border-left-color:#d4dde8}
+.cap.is-disabled,.cap:has(input:disabled){opacity:.55;cursor:not-allowed}
+.seg button[disabled]{opacity:.55;cursor:not-allowed}
+.ctl-unit{font-size:12px;color:var(--ctl-muted);line-height:var(--ctl-h);white-space:nowrap}
+.ctl-range-sep{color:var(--ctl-muted);padding:0 2px;line-height:var(--ctl-h)}
+
+/* Select */
+.sel{position:relative;min-width:200px}
+.sel-btn{
+  width:100%;height:var(--ctl-h);padding:0 32px 0 10px;text-align:left;
+  background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='%235b6b82' d='M2.2 4.2L6 8l3.8-3.8'/></svg>") no-repeat right 10px center;
+  border:var(--ctl-border-w) solid var(--ctl-border);border-radius:var(--ctl-radius);
+  box-shadow:none;color:var(--ink);font-size:13px;cursor:pointer;
+}
+.sel-btn:hover,.sel-btn.is-hover{border-color:var(--ctl-hover)}
+.sel-btn:focus,.sel.open .sel-btn,.sel-btn.is-focus{outline:0;border-color:var(--accent);box-shadow:var(--ctl-focus-ring)}
+.sel-btn[disabled]{background:var(--ctl-disabled-bg);cursor:not-allowed}
+.sel-menu{display:none;position:absolute;z-index:15;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-md);padding:4px;max-height:220px;overflow:auto}
+.sel.open .sel-menu{display:block}
+.sel-opt{display:block;width:100%;text-align:left;border:0;background:transparent;padding:8px 10px;border-radius:8px;font-size:13px}
+.sel-opt:hover,.sel-opt:focus{background:var(--soft);color:var(--accent)}
+.sel-opt[aria-selected=true]{font-weight:600;color:var(--accent)}
+
+/* Tags multi */
+.tags{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tag{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px 0 10px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:12px;color:var(--ink)}
+.tag.on{background:var(--soft);border-color:#c5d4ea;color:var(--accent);font-weight:600}
+.tag button{border:0;background:transparent;color:var(--faint);padding:0;width:16px;height:16px;border-radius:50%;line-height:1}
+.tag button:hover{background:#e8eef7;color:var(--ink)}
+.tag-add{height:28px;padding:0 10px;border-radius:999px;border:1px dashed var(--line);background:#fff;font-size:12px;color:var(--muted)}
+.tag-add:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Choice */
+.chk,.radio{display:inline-flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;user-select:none}
+.chk input,.radio input{width:var(--ctl-check);height:var(--ctl-check);margin:0;accent-color:var(--accent)}
+.chk.is-disabled,.radio.is-disabled{opacity:.55;cursor:not-allowed}
+.switch{position:relative;display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none;font-size:13px}
+.switch input{position:absolute;opacity:0;width:0;height:0}
+.switch .track{width:40px;height:22px;border-radius:999px;background:#c5d0de;position:relative;transition:background .15s;flex:none}
+.switch .track::after{content:"";position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:2px;left:2px;box-shadow:0 1px 2px rgba(15,35,72,.2);transition:transform .15s}
+.switch input:checked + .track{background:var(--accent)}
+.switch input:checked + .track::after{transform:translateX(18px)}
+.switch input:focus-visible + .track{box-shadow:var(--ctl-focus-ring)}
+.switch input:disabled + .track{opacity:.55;cursor:not-allowed}
+.choice-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice-card{display:block;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff;cursor:pointer}
+.choice-card:hover{border-color:var(--accent);background:#f8fbff}
+.choice-card:has(input:checked),.choice-card.on{border-color:var(--accent);background:var(--soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.choice-card input{margin:0 8px 0 0;accent-color:var(--accent);width:16px;height:16px;vertical-align:text-top}
+.choice-card strong{display:block;font-size:13px;font-weight:650;margin-bottom:2px}
+.choice-card span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+
+/* Tabs / capsules */
+.seg{display:inline-flex;background:#e6eef8;border-radius:12px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;color:#5b6b82;height:34px;padding:0 16px;border-radius:10px;font-size:13px;font-weight:650}
+.seg button:hover:not(.on){color:var(--ink)}
+.seg button.on{background:var(--accent);color:#fff;font-weight:700}
+.caps{display:flex;flex-wrap:wrap;gap:8px}
+.cap{display:inline-flex;align-items:center;gap:6px;min-height:26px;padding:3px 10px;border-radius:999px;border:1px solid #c5d4ea;background:#fff;color:var(--ink);font-size:11px;font-weight:400;cursor:pointer}
+.cap input{margin:0;width:14px;height:14px;accent-color:var(--accent)}
+.cap:has(input:checked),.cap.on{background:#e3edfc;border-color:#c5d4ea;font-weight:500}
+
+/* Badge / feedback */
+.badge{display:inline-flex;align-items:center;gap:3px;border-radius:999px;padding:1px 9px;font-size:11px;font-weight:600;line-height:18px;border:1px solid transparent}
+.badge-result{background:var(--soft);color:var(--accent);border-color:#c5d4ea}
+.badge-ok{background:var(--ctl-ok-bg);color:var(--ctl-ok);border-color:#bfe3cd}
+.badge-lock{background:#edf1f6;color:#59657a}
+.badge-rank{background:#edf1f6;color:#59657a}
+.badge-rank.r1{background:#fff4e0;color:#b86a00;border-color:#f0d7a4}
+.badge-run{background:#eef3fa;color:#1c5fc4}
+.badge-err{background:#fdecec;color:var(--ctl-error);border-color:#f3c4c4}
+.badge-wait{background:#fff;color:var(--muted);border-color:var(--line)}
+.badge-cat{background:#e3f1e8;color:#3d7556;border-radius:5px;padding:1px 7px;font-weight:500}
+.bar{height:6px;border-radius:6px;background:#e8eef7;overflow:hidden}
+.bar>i{display:block;height:100%;width:0;border-radius:6px;background:var(--accent);transition:width .4s}
+.skel{background:linear-gradient(90deg,#e8eef7 25%,#f5f8fd 37%,#e8eef7 63%);background-size:400% 100%;animation:skel 1.2s ease infinite;border-radius:8px;height:14px}
+@keyframes skel{0%{background-position:100% 0}100%{background-position:0 0}}
+.empty{text-align:center;padding:28px 16px;color:var(--muted);font-size:13px;border:1px dashed #c9d6ea;border-radius:12px;background:#fafcfe}
+.empty b{display:block;color:var(--ink);font-size:14.5px;margin:8px 0 4px}
+.toast-stack{position:fixed;right:20px;bottom:20px;z-index:40;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{pointer-events:auto;min-width:260px;max-width:360px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;box-shadow:var(--shadow-md);padding:12px 14px;font-size:13px}
+.toast.err{border-left-color:var(--ctl-error)}
+.toast.ok{border-left-color:var(--ctl-ok)}
+.toast b{display:block;margin-bottom:2px}
+.modal-bg{position:fixed;inset:0;background:rgba(15,35,72,.4);z-index:50;display:flex;align-items:center;justify-content:center;padding:24px}
+.modal-bg[hidden]{display:none}
+.modal{width:min(440px,100%);background:#fff;border-radius:16px;box-shadow:var(--shadow-lg);padding:20px 22px 18px}
+.modal h3{margin:0 0 8px;font-size:16px}
+.modal p{margin:0 0 16px;color:var(--muted);font-size:13.5px}
+.modal .acts{display:flex;justify-content:flex-end;gap:8px}
+
+/* Title row */
+.title-row{display:flex;flex-wrap:wrap;align-items:flex-end;column-gap:12px;row-gap:2px}
+.title-row h3{margin:0;flex:0 0 auto}
+.title-row .sub-inline{margin:0;flex:1 1 12rem;min-width:min(100%,12rem);color:var(--muted);font-size:13px;font-weight:400}
+
+.diff{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.diff+.diff{margin-top:10px}
+.diff-h{padding:10px 14px;background:#f7faff;font-weight:650;font-size:13px;border-bottom:1px solid var(--line)}
+.diff table{width:100%;border-collapse:collapse;font-size:13px}
+.diff td{padding:8px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+.diff tr:last-child td{border-bottom:0}
+.diff .now{color:#8a4b12;width:38%}
+.diff .to{color:#0f4f9c;width:38%}
+.pick{display:grid;gap:8px;margin:0}
+.pick label{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:pointer}
+.pick label:has(input:checked){border-color:var(--accent);background:var(--soft)}
+.pick input{margin-top:3px;accent-color:var(--accent)}
+.pick b{display:block;font-size:13px}
+.pick span{display:block;font-size:12px;color:var(--muted)}
+.foot{margin-top:8px;font-size:12px;color:var(--faint)}
+
+.card.decided{padding:14px 16px}
+.decided-t{margin:0;font-size:13px;color:var(--ink)}
+.decided-t b{font-weight:650}
+
+/* 自绘勾选 / 单选（已确认） */
+input[type=checkbox],input[type=radio]{
+  -webkit-appearance:none;appearance:none;
+  width:var(--ctl-check);height:var(--ctl-check);
+  margin:0;box-sizing:border-box;padding:0;
+  border:2px solid var(--ctl-border);
+  background:#fff;
+  display:inline-grid;place-content:center;
+  flex:none;vertical-align:middle;cursor:pointer;
+  box-shadow:none;
+}
+input[type=checkbox]{border-radius:4px}
+input[type=radio]{border-radius:50%}
+input[type=checkbox]:hover:not(:disabled),input[type=radio]:hover:not(:disabled){border-color:var(--ctl-hover)}
+input[type=checkbox]:focus-visible,input[type=radio]:focus-visible{
+  outline:0;border-color:var(--accent);box-shadow:var(--ctl-focus-ring);
+}
+input[type=checkbox]:checked{
+  background-color:var(--accent);border-color:var(--accent);
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' d='M2.4 6.2l2.5 2.5 4.7-5.2'/></svg>");
+  background-repeat:no-repeat;background-position:center;background-size:10px 10px;
+}
+input[type=radio]:checked{border-color:var(--accent);background-color:#fff}
+input[type=radio]:checked::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent)}
+input[type=checkbox]:disabled,input[type=radio]:disabled{opacity:.55;cursor:not-allowed;background-color:var(--ctl-disabled-bg)}
+input[type=checkbox]:checked:disabled{background-color:var(--accent)}
+.switch input[type=checkbox]{
+  position:absolute;opacity:0;width:0;height:0;border:0;padding:0;margin:0;
+  background:none;background-image:none;box-shadow:none;display:block;
+}
+.switch input[type=checkbox]:checked{background:none;background-image:none;border:0}
+.switch input[type=checkbox]::after,
+.switch input[type=checkbox]:checked::after{content:none;display:none;width:0;height:0}
+</style>
+</head>
+<body>
+<header class="top">
+  <b>AIGenPlatform 控件规范</b>
+  <span class="ver">v0.2.0</span>
+  <span class="note">控件规范 · 已确认（2026-11-12） · 沿用晴空蓝与已选定数字框</span>
+</header>
+<div class="layout">
+<nav class="toc" id="toc" aria-label="本页目录">
+  <div class="g">拍板</div>
+  <a href="#sec-diff">现状 → 规范</a>
+  <a href="#sec-picks">已定结论</a>
+  <div class="g">基础</div>
+  <a href="#sec-tokens">色板与 token</a>
+  <div class="g">控件</div>
+  <a href="#sec-buttons">按钮</a>
+  <a href="#sec-input">文本与搜索</a>
+  <a href="#sec-number">数字输入</a>
+  <a href="#sec-select">下拉与多选</a>
+  <a href="#sec-choice">勾选 / 单选 / 开关</a>
+  <a href="#sec-tabs">一二级标签</a>
+  <a href="#sec-feedback">徽章与反馈</a>
+  <a href="#sec-form">表单行布局</a>
+</nav>
+<main>
+
+<section id="sec-diff">
+  <p class="kicker">已确认 · 2026-11-12</p>
+  <h1>控件规范已确认，作为落地基准</h1>
+  <p class="lead">项总于 2026-11-12 12:41（Asia/Shanghai）拍板。视觉沿用晴空蓝，以及已选定的数字输入（单框、数字靠左、右侧自绘上下箭头）。五项取舍与两条建议均按推荐方案执行。本页为定稿，供对照；下方差异清单改为落地清单，下一步铺到原型。</p>
+
+  <h2>现状 → 规范：落地清单</h2>
+  <p class="sub">以下是 v0.10.1 原型里与已确认规范不一致、将在 v0.11.0 统一的地方。已选定且必须保留的不列入。</p>
+
+  <div class="diff">
+    <div class="diff-h">图文生成画布（第 1–6 步）</div>
+    <table>
+      <tr><td class="now">文本输入、数字框、中档「开始处理」、下拉已按 36 / 12 / 2px #6b7c94 对齐，数字框为项总选定样式。</td><td class="to">保持，作为本规范的既定基准，不回退。</td></tr>
+      <tr><td class="now">次要按钮「取消 / 重试」为 1px 主色蓝描边、白底、圆角 12px、高度 36px。</td><td class="to">已定：保持 1px 主色蓝描边、白底、字主色（与输入框 2px 灰描边分工）。</td></tr>
+      <tr><td class="now">主按钮存在 40px（进入图文生成）与 36px（开始处理）两档；小档 32px 几乎未用。</td><td class="to">明确三档：大 40 / 中 36 / 小 32，画布主路径用中档，工作台强调操作用大档。</td></tr>
+      <tr><td class="now">文本输入带内阴影 <code>inset 0 1px 2px</code>，数字框为干净白底无内阴影（与项总图一一致）。</td><td class="to">已定：文本框与下拉去掉 inset 内阴影，全站输入干净白底，只保留 focus 光圈。</td></tr>
+      <tr><td class="now">勾选「去AI化」、候选标题单选等为原生 16px checkbox/radio。</td><td class="to">已定：改为自绘（勾选对号、单选圆点），各浏览器一致。</td></tr>
+    </table>
+  </div>
+  <div class="diff">
+    <div class="diff-h">热榜 · 第 1 步（其余 2–6 步已与图文共用画布）</div>
+    <table>
+      <tr><td class="now">「主题方向」#hotTopic：高度 40px、描边 1px #d9e3f0、圆角 9px，focus 为 2px outline，无 3px 光圈。</td><td class="to">已定：并入统一输入规范：36 / 12 / 2px #6b7c94 + 3px 光圈。</td></tr>
+      <tr><td class="now">#hotCount 已是选定数字框，单位为「条」；图文第 1 步同类控件单位为「个」。</td><td class="to">已定：统一为「个」。热榜第 1 步 #hotCount 也改。立意数 / 风格数仍用「条」。</td></tr>
+      <tr><td class="now">#hotDemoSel 已按统一下拉（自绘箭头、36 / 12 / 2px）。</td><td class="to">保持。</td></tr>
+      <tr><td class="now">采集平台胶囊 .hot-plat 字号 13.5px、内边距较大；图文二级胶囊约 11px / 高 26px。</td><td class="to">已定：热榜第 1 步采集平台改用与图文相同的二级胶囊（11px / 高 26、浅边、选中浅蓝底）。</td></tr>
+    </table>
+  </div>
+  <div class="diff">
+    <div class="diff-h">工作台外壳、登录 / 注册、管理与系统 6 页</div>
+    <table>
+      <tr><td class="now">顶栏按钮、次级标签 .st、说明条「模拟请求」等圆角 8px、描边 1px --line，未使用 --ctl-* 令牌。</td><td class="to">已定：可点击控件统一到 12px 圆角；高度能对齐的用 32 或 36。</td></tr>
+      <tr><td class="now">登录 / 注册输入、管理页筛选与表单未套用 36 / 12 / 2px #6b7c94 与 focus 光圈。</td><td class="to">已定：同一套输入规范铺到登录与 6 个管理页。登录 / 注册用大档 40，管理筛选与表单用中档 36，描边与光圈与画布一致。</td></tr>
+      <tr><td class="now">首页模块标签选中态为近黑填充 #14213a；图文一级来源标签选中态为主色蓝填充。</td><td class="to">已定：一级标签选中态统一为主色蓝填充。首页模块标签由近黑改为 #1c5fc4；图文来源标签保持主色蓝。管理页筛选用的白底分段（.seg）仍为次级筛选，不改成实心蓝，以免和一级标签抢层级。</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="sec-picks">
+  <h2>已定结论（2026-11-12）</h2>
+  <p class="sub">五项取舍均按建议执行，两条附加建议一并照做。选择不再需要点选。</p>
+  <div class="stack">
+    <div class="card decided">
+      <div class="demo-label">取舍 1 · 热榜第 1 步主题输入</div>
+      <p class="decided-t"><b>并入统一输入规范。</b>36px 高、12px 圆角、2px #6b7c94、focus 3px 光圈。</p>
+    </div>
+    <div class="card decided">
+      <div class="demo-label">取舍 2 · 次要按钮描边</div>
+      <p class="decided-t"><b>保持 1px 主色蓝描边。</b>白底、字主色，用于「取消 / 重试」。与输入框 2px 中性描边分工。</p>
+    </div>
+    <div class="card decided">
+      <div class="demo-label">取舍 3 · 标题数单位</div>
+      <p class="decided-t"><b>统一为「个」。</b>图文第 1 步与热榜第 1 步的标题数都用「个」。立意数、风格数仍用「条」。</p>
+    </div>
+    <div class="card decided">
+      <div class="demo-label">取舍 4 · 勾选与单选</div>
+      <p class="decided-t"><b>改为自绘。</b>勾选为 16px 圆角方框加对号，单选为圆框加圆点，各浏览器观感一致。</p>
+    </div>
+    <div class="card decided">
+      <div class="demo-label">取舍 5 · 一级标签选中态</div>
+      <p class="decided-t"><b>统一为主色蓝填充。</b>与图文来源标签、本规范分段控件一致。首页模块标签由近黑改为主色蓝。</p>
+    </div>
+    <div class="card decided">
+      <div class="demo-label">附加 · 已一并照做</div>
+      <p class="decided-t">规范铺到登录和管理页（登录输入用大档 40，管理页用中档 36）。热榜采集平台改用与图文相同的二级胶囊。</p>
+    </div>
+  </div>
+</section>
+
+<section id="sec-tokens">
+  <h2>色板、字号、间距、圆角、阴影</h2>
+  <p class="sub">令牌取自现有原型 :root 与 v0.10.1 <code>--ctl-*</code>。本页所有控件都使用这些变量。</p>
+  <h3>色板</h3>
+  <div class="grid grid-3">
+    <div class="swatch"><i style="background:#1c5fc4"></i><b>主色 accent</b>#1c5fc4</div>
+    <div class="swatch"><i style="background:#164ea3"></i><b>主色按下 accent-d</b>#164ea3</div>
+    <div class="swatch"><i style="background:#e3edfc"></i><b>浅强调 soft</b>#e3edfc</div>
+    <div class="swatch"><i style="background:#14213a"></i><b>正文 ink</b>#14213a</div>
+    <div class="swatch"><i style="background:#596579"></i><b>次级 muted</b>#596579</div>
+    <div class="swatch"><i style="background:#8592a6"></i><b>更淡 faint</b>#8592a6</div>
+    <div class="swatch"><i style="background:#6b7c94"></i><b>输入描边 ctl-border</b>#6b7c94</div>
+    <div class="swatch"><i style="background:#d9e3f0"></i><b>分割线 line</b>#d9e3f0</div>
+    <div class="swatch"><i style="background:#f1f6fc;border-color:#d9e3f0"></i><b>页面底 bg</b>#f1f6fc</div>
+    <div class="swatch"><i style="background:#c42b2b"></i><b>错误 / 危险</b>#c42b2b</div>
+    <div class="swatch"><i style="background:#17734a"></i><b>成功</b>#17734a</div>
+    <div class="swatch"><i style="background:#d4570a"></i><b>警示</b>#d4570a</div>
+  </div>
+  <h3>字号阶梯</h3>
+  <div class="card">
+    <div class="scale">
+      <span style="font-size:28px;font-weight:800;letter-spacing:-.02em">28 页标题</span>
+      <span style="font-size:22px;font-weight:700">22 页次标题</span>
+      <span style="font-size:18px;font-weight:700">18 区块</span>
+      <span style="font-size:16px;font-weight:650">16 卡片标题</span>
+      <span style="font-size:14px">14 正文</span>
+      <span style="font-size:13px">13 控件</span>
+      <span style="font-size:12px;color:#5b6b82">12 标签 / 错误</span>
+      <span style="font-size:11px;color:#8592a6">11 徽章</span>
+    </div>
+    <p class="hint" style="margin:10px 0 0">字体栈：系统字体 + 微软雅黑 / 苹方。正文行高 1.65，字重 400 / 550 / 600 / 700。</p>
+  </div>
+  <h3>间距 · 圆角 · 阴影</h3>
+  <table class="token-table card" style="padding:0">
+    <tr><th>类别</th><th>变量</th><th>值</th><th>用途</th></tr>
+    <tr><td>间距</td><td>--space-1 … 6</td><td>4 / 8 / 12 / 16 / 24 / 32</td><td>控件内边距与区块留白</td></tr>
+    <tr><td>控件高</td><td>--ctl-h-lg / --ctl-h / --ctl-h-sm</td><td>40 / 36 / 32</td><td>按钮与输入三档</td></tr>
+    <tr><td>圆角</td><td>--ctl-radius-sm / --ctl-radius / --ctl-radius-lg / pill</td><td>8 / 12 / 16 / 999</td><td>小附件 / 控件 / 卡片 / 胶囊</td></tr>
+    <tr><td>输入描边</td><td>--ctl-border / --ctl-border-w</td><td>#6b7c94 / 2px</td><td>输入、下拉、数字框</td></tr>
+    <tr><td>Focus</td><td>--ctl-focus-ring</td><td>0 0 0 3px rgba(28,95,196,.30)</td><td>键盘与点击聚焦</td></tr>
+    <tr><td>错误光圈</td><td>--ctl-error-ring</td><td>0 0 0 3px rgba(196,43,43,.18)</td><td>校验失败</td></tr>
+    <tr><td>阴影</td><td>--shadow-rest / md / lg</td><td>轻卡片 / 下拉 / 对话框</td><td>不做厚投影</td></tr>
+  </table>
+</section>
+
+<section id="sec-buttons">
+  <h2>按钮</h2>
+  <p class="sub">五种类型 × 大 40 / 中 36 / 小 32。加载中为 spinner +「生成中…」。图标为内联 SVG。</p>
+  <div class="card" style="margin-bottom:14px">
+    <div class="demo-label">类型（中档 36，可点）</div>
+    <div class="row">
+      <button type="button" class="btn btn-md btn-primary">主要按钮</button>
+      <button type="button" class="btn btn-md btn-secondary">次要按钮</button>
+      <button type="button" class="btn btn-md btn-ghost">幽灵按钮</button>
+      <button type="button" class="btn btn-md btn-link">文字链接</button>
+      <button type="button" class="btn btn-md btn-danger">危险按钮</button>
+    </div>
+    <div class="demo-label" style="margin-top:14px">禁用态（各类型）</div>
+    <div class="row">
+      <button type="button" class="btn btn-md btn-primary" disabled>主要按钮</button>
+      <button type="button" class="btn btn-md btn-secondary" disabled>次要按钮</button>
+      <button type="button" class="btn btn-md btn-ghost" disabled>幽灵按钮</button>
+      <button type="button" class="btn btn-md btn-link" disabled>文字链接</button>
+      <button type="button" class="btn btn-md btn-danger" disabled>危险按钮</button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="demo-label">三档尺寸 + 图标</div>
+    <div class="row">
+      <button type="button" class="btn btn-lg btn-primary"><svg class="ico" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M7 3v8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>进入图文生成</button>
+      <button type="button" class="btn btn-md btn-primary">开始处理</button>
+      <button type="button" class="btn btn-sm btn-primary">小按钮</button>
+      <button type="button" class="btn btn-md btn-secondary btn-icon" aria-label="重试" title="仅图标">
+        <svg class="ico" width="12" height="12" viewBox="0 0 12 12"><path d="M10 6A4 4 0 1 1 8.2 2.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8.1 1.1l.3 1.8 1.7-.6" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="demo-label">状态一览（展示用，左侧为可交互示例）</div>
+  <div class="state-grid" style="margin-bottom:14px">
+    <div><div class="demo-label">默认</div><button type="button" class="btn btn-md btn-primary">开始处理</button></div>
+    <div><div class="demo-label">Hover 示意</div><button type="button" class="btn btn-md btn-primary is-hover">开始处理</button></div>
+    <div><div class="demo-label">Focus 示意</div><button type="button" class="btn btn-md btn-primary" style="box-shadow:0 0 0 3px rgba(28,95,196,.30)">开始处理</button></div>
+    <div><div class="demo-label">禁用</div><button type="button" class="btn btn-md btn-primary" disabled>开始处理</button></div>
+    <div><div class="demo-label">加载中（可切换）</div><button type="button" class="btn btn-md btn-primary" id="btnLoad"><span class="spin" hidden></span><span class="txt">开始生成</span></button></div>
+  </div>
+  <div class="card">
+    <div class="demo-label">生成原稿场景：主按钮加载 + 次要「取消 / 重试」</div>
+    <div class="row" id="genScene">
+      <button type="button" class="btn btn-md btn-primary" id="genStart"><span class="spin" hidden></span><span class="txt">生成原稿</span></button>
+      <button type="button" class="btn btn-md btn-secondary" id="genCancel" hidden>
+        <svg class="ico" width="12" height="12" viewBox="0 0 12 12"><path d="M2.2 2.2l7.6 7.6M9.8 2.2L2.2 9.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>取消
+      </button>
+      <button type="button" class="btn btn-md btn-secondary" id="genRetry" hidden>
+        <svg class="ico" width="12" height="12" viewBox="0 0 12 12"><path d="M10 6A4 4 0 1 1 8.2 2.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8.1 1.1l.3 1.8 1.7-.6" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>重试
+      </button>
+      <span class="hint" id="genHint">点击「生成原稿」进入加载，再点「取消」可模拟失败并出现重试。</span>
+    </div>
+  </div>
+</section>
+
+<section id="sec-input">
+  <h2>文本输入、多行、搜索、前后缀</h2>
+  <p class="sub">高度 36、圆角 12、描边 2px #6b7c94、focus 主色描边 + 3px 光圈。本规范稿中输入为干净白底（见差异清单：建议去掉原型文本框的内阴影）。</p>
+  <div class="grid grid-2" style="margin-bottom:14px">
+    <div class="field">
+      <label class="fld-label" for="topicDemo">想写的主题</label>
+      <input class="inp" id="topicDemo" placeholder="例如：AI时代的职场成长" value="">
+    </div>
+    <div class="field is-invalid">
+      <label class="fld-label" for="topicErr">想写的主题（错误态）</label>
+      <input class="inp is-invalid" id="topicErr" placeholder="例如：AI时代的职场成长">
+      <p class="fld-err" id="topicErrMsg">请填写主题</p>
+    </div>
+    <div class="field">
+      <label class="fld-label">悬停示意</label>
+      <input class="inp is-hover" value="悬停时描边略深" readonly>
+    </div>
+    <div class="field">
+      <label class="fld-label">聚焦示意</label>
+      <input class="inp is-focus" value="聚焦时主色描边加光圈" readonly>
+    </div>
+    <div class="field">
+      <label class="fld-label">禁用</label>
+      <input class="inp" value="不可编辑" disabled>
+    </div>
+  </div>
+  <div class="grid grid-2">
+    <div class="field">
+      <label class="fld-label" for="taDemo">原稿摘要（带字数）</label>
+      <textarea class="inp" id="taDemo" maxlength="120" placeholder="用一两句话说明这篇文章要写什么">居民最关心加装电梯后的费用分摊与日常维护。</textarea>
+      <div class="ta-meta"><span id="taCount">0</span> / 120 字</div>
+    </div>
+    <div class="stack">
+      <div class="field">
+        <label class="fld-label" for="searchDemo">搜索</label>
+        <div class="search">
+          <svg class="si" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.2" stroke="#8592a6" stroke-width="1.4"/><path d="M10.2 10.2L13 13" stroke="#8592a6" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <input class="inp" id="searchDemo" placeholder="搜索标题、任务或账号" value="加装电梯">
+          <button type="button" class="clr" id="searchClr" aria-label="清除">×</button>
+        </div>
+      </div>
+      <div class="field">
+        <label class="fld-label" for="prefixDemo">带前后缀</label>
+        <div class="affix">
+          <span class="slot l">https://</span>
+          <input class="inp" id="prefixDemo" value="example.com/article">
+          <span class="slot r">.html</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="sec-number">
+  <h2>数字输入（项总选定样式，必须保留）</h2>
+  <p class="sub">单框、白底、2px #6b7c94、圆角 12、宽 92 × 高 36。数字靠左 12px；右侧浅灰竖条上为自绘 ▲▼，与数字共用同一外边框，无 −/+，无原生 spinner。单位在框外右侧 8px。可键盘上下、长按连续、非法值回退、min/max 钳制。</p>
+  <div class="card" style="margin-bottom:14px">
+    <div class="row">
+      <label class="fld-label" style="margin:0" for="titleCount">希望生成多少个标题？（1–10）</label>
+      <div class="ctl-step-wrap">
+  <div class="ctl-step" data-ctl-step>
+    <input id="titleCount" class="ctl-step-input" type="number" min="1" max="10" step="1" value="5" inputmode="numeric" data-last="5">
+    <div class="ctl-spin">
+      <button type="button" class="ctl-step-btn ctl-spin-up" data-dir="1" tabindex="-1" aria-label="增加"><svg class="ctl-spin-ico" width="10" height="8" viewBox="0 0 10 8" aria-hidden="true"><path d="M5 1.1L9.2 6.4H.8z" fill="currentColor"/></svg></button>
+      <button type="button" class="ctl-step-btn ctl-spin-down" data-dir="-1" tabindex="-1" aria-label="减少"><svg class="ctl-spin-ico" width="10" height="8" viewBox="0 0 10 8" aria-hidden="true"><path d="M5 6.9L.8 1.6h8.4z" fill="currentColor"/></svg></button>
+    </div>
+  </div><span class="ctl-unit">个</span>
+</div>
+    </div>
+    <p class="hint" style="margin:10px 0 0">成对字数范围，中间「—」，单位只出现在右侧一次：</p>
+    <div class="row" style="margin-top:8px">
+      <label class="fld-label" style="margin:0" for="wordMin">每稿字数</label>
+      <div class="ctl-step-wrap">
+  <div class="ctl-step" data-ctl-step>
+    <input id="wordMin" class="ctl-step-input" type="number" min="100" max="5000" step="1" value="800" inputmode="numeric" data-last="800">
+    <div class="ctl-spin">
+      <button type="button" class="ctl-step-btn ctl-spin-up" data-dir="1" tabindex="-1" aria-label="增加"><svg class="ctl-spin-ico" width="10" height="8" viewBox="0 0 10 8" aria-hidden="true"><path d="M5 1.1L9.2 6.4H.8z" fill="currentColor"/></svg></button>
+      <button type="button" class="ctl-step-btn ctl-spin-down" data-dir="-1" tabindex="-1" aria-label="减少"><svg class="ctl-spin-ico" width="10" height="8" viewBox="0 0 10 8" aria-hidden="true"><path d="M5 6.9L.8 1.6h8.4z" fill="currentColor"/></svg></button>
+    </div>
+  </div>
+</div>
+      <span class="ctl-range-sep">—</span>
+      <div class="ctl-step-wrap">
+  <div class="ctl-step" data-ctl-step>
+    <input id="wordMax" class="ctl-step-input" type="number" min="100" max="5000" step="1" value="1200" inputmode="numeric" data-last="1200">
+    <div class="ctl-spin">
+      <button type="button" class="ctl-step-btn ctl-spin-up" data-dir="1" tabindex="-1" aria-label="增加"><svg class="ctl-spin-ico" width="10" height="8" viewBox="0 0 10 8" aria-hidden="true"><path d="M5 1.1L9.2 6.4H.8z" fill="currentColor"/></svg></button>
+      <button type="button" class="ctl-step-btn ctl-spin-down" data-dir="-1" tabindex="-1" aria-label="减少"><svg class="ctl-spin-ico" width="10" height="8" viewBox="0 0 10 8" aria-hidden="true"><path d="M5 6.9L.8 1.6h8.4z" fill="currentColor"/></svg></button>
+    </div>
+  </div><span class="ctl-unit">字</span>
+</div>
+    </div>
+  </div>
+  <div class="row">
+    <div>
+      <div class="demo-label">禁用（到上限）</div>
+      <div class="ctl-step-wrap">
+  <div class="ctl-step" data-ctl-step>
+    <input id="numDis" class="ctl-step-input" type="number" min="1" max="10" step="1" value="10" inputmode="numeric" data-last="10">
+    <div class="ctl-spin">
+      <button type="button" class="ctl-step-btn ctl-spin-up" data-dir="1" tabindex="-1" aria-label="增加"><svg class="ctl-spin-ico" width="10" height="8" viewBox="0 0 10 8" aria-hidden="true"><path d="M5 1.1L9.2 6.4H.8z" fill="currentColor"/></svg></button>
+      <button type="button" class="ctl-step-btn ctl-spin-down" data-dir="-1" tabindex="-1" aria-label="减少"><svg class="ctl-spin-ico" width="10" height="8" viewBox="0 0 10 8" aria-hidden="true"><path d="M5 6.9L.8 1.6h8.4z" fill="currentColor"/></svg></button>
+    </div>
+  </div><span class="ctl-unit">个</span>
+</div>
+    </div>
+    <div>
+      <div class="demo-label">错误示意</div>
+      <div class="ctl-step-wrap"><div class="ctl-step is-invalid" data-ctl-step>
+        <input class="ctl-step-input" type="number" min="1" max="10" value="99" inputmode="numeric" data-last="5">
+        <div class="ctl-spin">
+          <button type="button" class="ctl-step-btn" data-dir="1" tabindex="-1" aria-label="增加"><svg class="ctl-spin-ico" width="10" height="8" viewBox="0 0 10 8" aria-hidden="true"><path d="M5 1.1L9.2 6.4H.8z" fill="currentColor"/></svg></button>
+          <button type="button" class="ctl-step-btn" data-dir="-1" tabindex="-1" aria-label="减少"><svg class="ctl-spin-ico" width="10" height="8" viewBox="0 0 10 8" aria-hidden="true"><path d="M5 6.9L.8 1.6h8.4z" fill="currentColor"/></svg></button>
+        </div>
+      </div><span class="ctl-unit">个</span></div>
+    </div>
+    <div>
+      <div class="demo-label">整框禁用</div>
+      <div class="ctl-step-wrap">
+        <div class="ctl-step is-disabled" data-ctl-step>
+          <input class="ctl-step-input" type="number" min="1" max="10" value="5" inputmode="numeric" data-last="5" disabled>
+          <div class="ctl-spin">
+            <button type="button" class="ctl-step-btn" data-dir="1" tabindex="-1" aria-label="增加" disabled><svg class="ctl-spin-ico" width="10" height="8" viewBox="0 0 10 8" aria-hidden="true"><path d="M5 1.1L9.2 6.4H.8z" fill="currentColor"/></svg></button>
+            <button type="button" class="ctl-step-btn" data-dir="-1" tabindex="-1" aria-label="减少" disabled><svg class="ctl-spin-ico" width="10" height="8" viewBox="0 0 10 8" aria-hidden="true"><path d="M5 6.9L.8 1.6h8.4z" fill="currentColor"/></svg></button>
+          </div>
+        </div><span class="ctl-unit">个</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="sec-select">
+  <h2>下拉与多选标签</h2>
+  <p class="sub">下拉为自绘箭头、同高同圆角同描边，展开为自定义列表（不用原生菜单，沙箱中也能点）。多选为可增删的胶囊标签。</p>
+  <div class="grid grid-2">
+    <div class="field">
+      <label class="fld-label" id="demoModeLab">生图方式</label>
+      <div class="sel" id="demoMode">
+        <button type="button" class="sel-btn" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="demoModeLab">浏览器生图</button>
+        <div class="sel-menu" role="listbox">
+          <button type="button" class="sel-opt" role="option" aria-selected="true" data-v="browser">浏览器生图</button>
+          <button type="button" class="sel-opt" role="option" aria-selected="false" data-v="api">API 生图</button>
+          <button type="button" class="sel-opt" role="option" aria-selected="false" data-v="upload">使用已有图片</button>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label class="fld-label">悬停示意</label>
+      <div class="sel">
+        <button type="button" class="sel-btn is-hover" tabindex="-1">悬停时描边略深</button>
+      </div>
+    </div>
+    <div class="field">
+      <label class="fld-label">聚焦示意</label>
+      <div class="sel">
+        <button type="button" class="sel-btn is-focus" tabindex="-1">聚焦时主色描边加光圈</button>
+      </div>
+    </div>
+    <div class="field">
+      <label class="fld-label">禁用下拉</label>
+      <div class="sel">
+        <button type="button" class="sel-btn" disabled>暂不可选</button>
+      </div>
+    </div>
+  </div>
+  <div class="field" style="margin-top:14px">
+    <span class="fld-label">内容方向（多选标签）</span>
+    <div class="tags" id="tagBox">
+      <span class="tag on">差异化稿 <button type="button" aria-label="移除 差异化稿">×</button></span>
+      <span class="tag on">广度稿 <button type="button" aria-label="移除 广度稿">×</button></span>
+      <span class="tag on">深度稿 <button type="button" aria-label="移除 深度稿">×</button></span>
+      <button type="button" class="tag-add" id="tagAdd">+ 补充方向</button>
+    </div>
+  </div>
+</section>
+
+<section id="sec-choice">
+  <h2>勾选、单选、开关、单选卡</h2>
+  <p class="sub">勾选 / 单选为自绘 16px（对号 / 圆点），各浏览器一致。开关与 3.2 步那种来源单选卡可点。</p>
+  <div class="grid grid-2" style="margin-bottom:14px">
+    <div class="card stack">
+      <div class="demo-label">勾选</div>
+      <label class="chk"><input type="checkbox" checked> 去AI化</label>
+      <label class="chk"><input type="checkbox"> 自动配图</label>
+      <label class="chk is-disabled"><input type="checkbox" checked disabled> 生成新标题（禁用且勾选）</label>
+    </div>
+    <div class="card stack">
+      <div class="demo-label">单选与开关</div>
+      <label class="radio"><input type="radio" name="optDemo" checked> 选项一</label>
+      <label class="radio"><input type="radio" name="optDemo"> 选项二</label>
+      <label class="switch"><input type="checkbox" id="swDemo" checked><span class="track"></span> 写入第 1 步日志</label>
+      <label class="switch"><input type="checkbox" disabled><span class="track"></span> 禁用开关</label>
+    </div>
+  </div>
+  <div class="demo-label">单选卡（对应 3.2「写作风格来源」）</div>
+  <div class="choice-cards" id="sourceCards">
+    <label class="choice-card">
+      <input type="radio" name="writingSource" value="title" checked>
+      <strong>根据原标题获取</strong>
+      <span>按当前标题再向模型要一组写作风格，适合还没沉淀风格库时。</span>
+    </label>
+    <label class="choice-card">
+      <input type="radio" name="writingSource" value="library">
+      <strong>从已有风格中选择</strong>
+      <span>使用风格库里已经确认过的写法，避免每次重新生成。</span>
+    </label>
+  </div>
+</section>
+
+<section id="sec-tabs">
+  <h2>一级标签与二级胶囊</h2>
+  <p class="sub">一级是分段控件（来源切换），选中为主色蓝填充、字号 13 / 字重 700、高度 34。二级是采集平台那种浅底胶囊，字号 11、高度 26。两者层级必须能一眼分清。</p>
+  <div class="card">
+    <div class="demo-label">一级 · 来源</div>
+    <div class="seg" id="segDemo" role="tablist">
+      <button type="button" data-seg="plat">平台热榜标题</button>
+      <button type="button" class="on" data-seg="topic">主题生成标题</button>
+      <button type="button" data-seg="direct">直接指定标题</button>
+      <button type="button" data-seg="locked" disabled>未解锁来源</button>
+    </div>
+    <p class="hint" id="segHint" style="margin:10px 0 16px">当前：主题生成标题</p>
+    <div class="demo-label">二级 · 采集平台</div>
+    <div class="caps">
+      <label class="cap"><input type="checkbox" checked> 头条热榜</label>
+      <label class="cap"><input type="checkbox" checked> 百度热搜</label>
+      <label class="cap"><input type="checkbox"> 抖音热点</label>
+      <label class="cap is-disabled"><input type="checkbox" disabled> 暂不可用</label>
+    </div>
+  </div>
+</section>
+
+<section id="sec-feedback">
+  <h2>徽章、进度、骨架、空状态、Toast、确认弹窗</h2>
+  <div class="card" style="margin-bottom:14px">
+    <div class="demo-label">Badge / 状态标签</div>
+    <div class="row">
+      <span class="badge badge-result">结果</span>
+      <span class="badge badge-ok">已完成</span>
+      <span class="badge badge-lock">未解锁</span>
+      <span class="badge badge-run">进行中</span>
+      <span class="badge badge-wait">等待获取</span>
+      <span class="badge badge-err">获取失败</span>
+      <span class="badge badge-rank r1">第1名</span>
+      <span class="badge badge-rank">第4名</span>
+      <span class="badge badge-cat">民生政策解读</span>
+    </div>
+  </div>
+  <div class="grid grid-2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="demo-label">进度条（点击开始）</div>
+      <div class="bar" style="margin:12px 0"><i id="progBar" style="width:20%"></i></div>
+      <button type="button" class="btn btn-sm btn-secondary" id="progGo">模拟生成进度</button>
+    </div>
+    <div class="card">
+      <div class="demo-label">Skeleton 骨架</div>
+      <div class="stack">
+        <div class="skel" style="height:16px;width:70%"></div>
+        <div class="skel" style="height:12px;width:100%"></div>
+        <div class="skel" style="height:12px;width:88%"></div>
+        <div class="skel" style="height:48px;width:100%;margin-top:6px"></div>
+      </div>
+    </div>
+  </div>
+  <div class="empty" style="margin-bottom:14px">
+    <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="4" y="4" width="20" height="20" rx="6" stroke="#c5d4ea" stroke-width="1.4" fill="none" transform="rotate(45 14 14)"/></svg>
+    <b>候选标题将在这里展示</b>
+    设置主题和数量后，点击「开始处理」。<br>这里将列出可选的文章标题，选定一个即进入原稿生成。
+  </div>
+  <div class="row">
+    <button type="button" class="btn btn-md btn-primary" id="toastOk">弹出成功提示</button>
+    <button type="button" class="btn btn-md btn-ghost" id="toastErr">弹出失败提示</button>
+    <button type="button" class="btn btn-md btn-secondary" id="openModal">打开确认弹窗</button>
+  </div>
+</section>
+
+<section id="sec-form">
+  <h2>表单行布局规范</h2>
+  <p class="sub">标签默认在上（12px / 字重 600，距控件 6px）。空间紧或筛选行可用标签在左。单位在数字框右侧 8px。校验错误写在控件下方，12px / #c42b2b。步骤主标题与副标题同一行、底边对齐。</p>
+  <div class="card" style="margin-bottom:14px">
+    <div class="title-row" style="margin-bottom:16px">
+      <h3>先指定主题，或直接给一个标题</h3>
+      <p class="sub-inline">两种入口，最后都从你确认的文章标题开始。</p>
+    </div>
+    <div class="grid grid-2">
+      <div class="field" id="formTop">
+        <label class="fld-label" for="formTopic">想写的主题</label>
+        <input class="inp" id="formTopic" placeholder="例如：社区生活的新变化">
+        <p class="fld-err" id="formTopicErr" hidden>请填写主题</p>
+      </div>
+      <div class="field inline">
+        <label class="fld-label" for="formCount">标题数</label>
+        <div class="ctl-step-wrap">
+          <div class="ctl-step" data-ctl-step>
+            <input id="formCount" class="ctl-step-input" type="number" min="1" max="20" step="1" value="5" inputmode="numeric" data-last="5">
+            <div class="ctl-spin">
+              <button type="button" class="ctl-step-btn" data-dir="1" tabindex="-1" aria-label="增加"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M5 1.1L9.2 6.4H.8z" fill="currentColor"/></svg></button>
+              <button type="button" class="ctl-step-btn" data-dir="-1" tabindex="-1" aria-label="减少"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M5 6.9L.8 1.6h8.4z" fill="currentColor"/></svg></button>
+            </div>
+          </div>
+          <span class="ctl-unit">个</span>
+        </div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button type="button" class="btn btn-md btn-primary" id="formSubmit">开始处理</button>
+      <span class="hint">点主按钮可看空值校验；填入主题后错误消失。</span>
+    </div>
+  </div>
+</section>
+
+<p class="foot">AIGenPlatform 控件规范 · 已确认（2026-11-12） · v0.2.0</p>
+</main>
+</div>
+
+<div class="toast-stack" id="toasts" aria-live="polite"></div>
+<div class="modal-bg" id="modalBg" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h3 id="modalTitle">确认修改</h3>
+    <p>更换原标题后，已生成的立意、风格与三稿将被清空，需要重新走后续步骤。是否继续？</p>
+    <div class="acts">
+      <button type="button" class="btn btn-md btn-ghost" id="modalCancel">取消</button>
+      <button type="button" class="btn btn-md btn-primary" id="modalOk">确认更换</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+  /* toc highlight */
+  var links=$$('#toc a');
+  function syncToc(){
+    var id=null, mid=80;
+    $$('main section').forEach(function(sec){
+      if(sec.getBoundingClientRect().top<=mid)id=sec.id;
+    });
+    links.forEach(function(a){a.classList.toggle('on',a.getAttribute('href')==='#'+id)});
+  }
+  document.addEventListener('scroll',syncToc,{passive:true});
+  syncToc();
+
+  /* buttons loading + gen scene */
+  function setLoading(btn,on,idle,busy){
+    if(!btn)return;
+    var spin=btn.querySelector('.spin');
+    var txt=btn.querySelector('.txt');
+    btn.disabled=!!on;
+    if(spin)spin.hidden=!on;
+    if(txt)txt.textContent=on?(busy||'生成中…'):(idle||txt.textContent);
+  }
+  var btnLoad=$('#btnLoad');
+  if(btnLoad)btnLoad.addEventListener('click',function(){
+    var on=!btnLoad.querySelector('.spin').hidden;
+    setLoading(btnLoad,!on,'开始生成','生成中…');
+    btnLoad.disabled=false; /* 本示例需能来回切换，故不锁定按钮 */
+  });
+  var genState='idle';
+  var genStart=$('#genStart'),genCancel=$('#genCancel'),genRetry=$('#genRetry'),genHint=$('#genHint');
+  function renderGen(){
+    if(genState==='idle'){
+      setLoading(genStart,false,'生成原稿','生成中…');
+      genStart.hidden=false;genCancel.hidden=true;genRetry.hidden=true;
+      genHint.textContent='点击「生成原稿」进入加载，再点「取消」可模拟失败并出现重试。';
+    }else if(genState==='run'){
+      setLoading(genStart,true,'生成原稿','生成中…');
+      genStart.hidden=false;genCancel.hidden=false;genRetry.hidden=true;
+      genHint.textContent='正在生成示例原稿…';
+    }else if(genState==='fail'){
+      setLoading(genStart,false,'生成原稿','生成中…');
+      genStart.hidden=true;genCancel.hidden=true;genRetry.hidden=false;
+      genHint.textContent='已取消（示例失败）。可点「重试」。';
+    }
+  }
+  if(genStart){
+    genStart.addEventListener('click',function(){if(genState==='idle'){genState='run';renderGen();}});
+    genCancel.addEventListener('click',function(){genState='fail';renderGen();});
+    genRetry.addEventListener('click',function(){genState='run';renderGen();});
+    renderGen();
+  }
+
+  /* textarea count */
+  var ta=$('#taDemo'),tc=$('#taCount');
+  function syncTa(){if(ta&&tc)tc.textContent=Array.from(ta.value).length}
+  if(ta){ta.addEventListener('input',syncTa);syncTa()}
+  var clr=$('#searchClr'),si=$('#searchDemo');
+  if(clr&&si)clr.addEventListener('click',function(){si.value='';si.focus()});
+
+  /* number steppers */
+  function syncBtns(input){
+    var wrap=input&&input.closest('.ctl-step');if(!wrap)return;
+    var min=Number(input.min),max=Number(input.max),v=Number(input.value),ok=Number.isFinite(v);
+    var minus=wrap.querySelector('[data-dir="-1"]'),plus=wrap.querySelector('[data-dir="1"]');
+    if(minus)minus.disabled=ok?v<=min:false;
+    if(plus)plus.disabled=ok?v>=max:false;
+  }
+  function setVal(input,next,evt){
+    next=String(next);
+    if(input.value!==next){
+      input.value=next;
+      if(evt){input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));}
+    }
+    input.setAttribute('data-last',input.value);
+    syncBtns(input);
+  }
+  function clampToLegal(input){
+    var min=Number(input.min),max=Number(input.max);
+    if(!Number.isFinite(min))min=1;if(!Number.isFinite(max))max=99;
+    var n=Number(input.value),next;
+    if(input.value===''||!Number.isFinite(n)){var last=Number(input.getAttribute('data-last'));next=Number.isFinite(last)?last:min;}
+    else next=Math.round(n);
+    next=Math.min(max,Math.max(min,next));
+    setVal(input,next,true);return next;
+  }
+  function stepBy(input,d){
+    if(!input||input.disabled)return;
+    var cur=Number(input.value);
+    if(!Number.isFinite(cur))cur=Number(input.getAttribute('data-last'))||Number(input.min)||0;
+    var min=Number(input.min),max=Number(input.max);
+    setVal(input,Math.min(max,Math.max(min,Math.round(cur+d))),true);
+  }
+  var holdT=null,holdI=null;
+  function clearHold(){if(holdT){clearTimeout(holdT);holdT=null}if(holdI){clearInterval(holdI);holdI=null}}
+  document.addEventListener('mousedown',function(e){var b=e.target.closest&&e.target.closest('.ctl-step-btn');if(b)e.preventDefault()},true);
+  document.addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('.ctl-step-btn');if(!b||b.disabled)return;
+    e.preventDefault();
+    stepBy(b.closest('.ctl-step').querySelector('input'),Number(b.getAttribute('data-dir')));
+  });
+  document.addEventListener('pointerdown',function(e){
+    var b=e.target.closest&&e.target.closest('.ctl-step-btn');if(!b||b.disabled)return;
+    e.preventDefault();
+    var input=b.closest('.ctl-step').querySelector('input'),dir=Number(b.getAttribute('data-dir'));
+    clearHold();
+    holdT=setTimeout(function(){holdI=setInterval(function(){if(b.disabled){clearHold();return}stepBy(input,dir)},80)},400);
+  });
+  ['pointerup','pointercancel','pointerleave'].forEach(function(ev){
+    document.addEventListener(ev,function(e){if(e.target&&e.target.closest&&e.target.closest('.ctl-step-btn'))clearHold()},true);
+  });
+  document.addEventListener('keydown',function(e){
+    var el=e.target;if(!el||!el.classList||!el.classList.contains('ctl-step-input'))return;
+    if(e.key==='ArrowUp'){e.preventDefault();stepBy(el,1)}
+    else if(e.key==='ArrowDown'){e.preventDefault();stepBy(el,-1)}
+  });
+  document.addEventListener('focusout',function(e){
+    var el=e.target;if(el&&el.classList&&el.classList.contains('ctl-step-input'))clampToLegal(el);
+  });
+  document.addEventListener('input',function(e){
+    var el=e.target;if(!el||!el.classList||!el.classList.contains('ctl-step-input'))return;
+    var n=Number(el.value);
+    if(el.value!==''&&Number.isFinite(n)&&Number.isInteger(n)&&n>=Number(el.min)&&n<=Number(el.max))el.setAttribute('data-last',el.value);
+    syncBtns(el);
+  });
+  $$('.ctl-step input').forEach(syncBtns);
+
+  /* select */
+  $$('.sel').forEach(function(box){
+    var btn=box.querySelector('.sel-btn');
+    var menu=box.querySelector('.sel-menu');
+    if(!btn||!menu||btn.disabled)return;
+    btn.addEventListener('click',function(e){
+      e.stopPropagation();
+      var open=!box.classList.contains('open');
+      $$('.sel.open').forEach(function(s){if(s!==box){s.classList.remove('open');var b=s.querySelector('.sel-btn');if(b)b.setAttribute('aria-expanded','false')}});
+      box.classList.toggle('open',open);
+      btn.setAttribute('aria-expanded',open?'true':'false');
+    });
+    menu.addEventListener('click',function(e){
+      var opt=e.target.closest('.sel-opt');if(!opt)return;
+      $$('.sel-opt',menu).forEach(function(o){o.setAttribute('aria-selected',o===opt?'true':'false')});
+      btn.textContent=opt.textContent;
+      box.classList.remove('open');
+      btn.setAttribute('aria-expanded','false');
+    });
+  });
+  document.addEventListener('click',function(){
+    $$('.sel.open').forEach(function(s){s.classList.remove('open');var b=s.querySelector('.sel-btn');if(b)b.setAttribute('aria-expanded','false')});
+  });
+
+  /* tags */
+  var tagBox=$('#tagBox'),tagAdd=$('#tagAdd');
+  if(tagBox){
+    tagBox.addEventListener('click',function(e){
+      var rm=e.target.closest('.tag button');
+      if(rm){var tag=rm.closest('.tag');if(tag)tag.parentNode.removeChild(tag)}
+    });
+  }
+  if(tagAdd){
+    var extras=['案例稿','评论稿','问答稿'];
+    tagAdd.addEventListener('click',function(){
+      var next=extras.shift();if(!next){tagAdd.hidden=true;return}
+      var span=document.createElement('span');
+      span.className='tag on';
+      span.innerHTML=next+' <button type="button" aria-label="移除 '+next+'">×</button>';
+      tagBox.insertBefore(span,tagAdd);
+    });
+  }
+
+  /* segmented tabs */
+  var seg=$('#segDemo'),segHint=$('#segHint');
+  var segName={plat:'平台热榜标题',topic:'主题生成标题',direct:'直接指定标题'};
+  if(seg){
+    seg.addEventListener('click',function(e){
+      var b=e.target.closest('button');if(!b)return;
+      $$('button',seg).forEach(function(x){x.classList.toggle('on',x===b)});
+      if(segHint)segHint.textContent='当前：'+(segName[b.getAttribute('data-seg')]||b.textContent);
+    });
+  }
+
+  /* toast + modal + progress */
+  function toast(title,msg,type){
+    var el=document.createElement('div');
+    el.className='toast'+(type?' '+type:'');
+    el.innerHTML='<b>'+title+'</b>'+(msg||'');
+    $('#toasts').appendChild(el);
+    setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el)},3200);
+  }
+  var tOk=$('#toastOk'),tErr=$('#toastErr');
+  if(tOk)tOk.addEventListener('click',function(){toast('已开始处理','示例数据不会真正提交。','ok')});
+  if(tErr)tErr.addEventListener('click',function(){toast('获取失败','请检查采集平台后重试。','err')});
+  var bg=$('#modalBg');
+  function closeModal(){if(bg)bg.hidden=true}
+  if($('#openModal'))$('#openModal').addEventListener('click',function(){bg.hidden=false;$('#modalOk').focus()});
+  if($('#modalCancel'))$('#modalCancel').addEventListener('click',function(){closeModal();toast('已取消','未更换原标题。')});
+  if($('#modalOk'))$('#modalOk').addEventListener('click',function(){closeModal();toast('已确认更换','下游立意、风格与三稿已按示例清空。','ok')});
+  if(bg)bg.addEventListener('click',function(e){if(e.target===bg)closeModal()});
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Escape')return;
+    if(bg&&!bg.hidden){closeModal();return}
+    $$('.sel.open').forEach(function(s){s.classList.remove('open');var b=s.querySelector('.sel-btn');if(b)b.setAttribute('aria-expanded','false')});
+  });
+
+  var prog=$('#progBar'),progGo=$('#progGo'),pt=null;
+  if(progGo)progGo.addEventListener('click',function(){
+    var w=10;prog.style.width=w+'%';
+    if(pt)clearInterval(pt);
+    pt=setInterval(function(){
+      w+=15;if(w>=100){w=100;clearInterval(pt);pt=null;toast('进度完成','这只是规范示例。','ok')}
+      prog.style.width=w+'%';
+    },280);
+  });
+
+  /* form validate */
+  var formSubmit=$('#formSubmit'),formTopic=$('#formTopic'),formErr=$('#formTopicErr'),formTop=$('#formTop');
+  if(formSubmit){
+    formSubmit.addEventListener('click',function(){
+      var empty=!formTopic.value.trim();
+      formTop.classList.toggle('is-invalid',empty);
+      formTopic.classList.toggle('is-invalid',empty);
+      formErr.hidden=!empty;
+      if(!empty)toast('校验通过','可以开始处理（示例）。','ok');
+    });
+    formTopic.addEventListener('input',function(){
+      if(formTopic.value.trim()){formTop.classList.remove('is-invalid');formTopic.classList.remove('is-invalid');formErr.hidden=true}
+    });
+  }
+
+  /* prevent any accidental form submit */
+  document.addEventListener('submit',function(e){e.preventDefault()});
+})();
+</script>
+</body>
+</html>

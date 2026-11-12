@@ -1,0 +1,6 @@
+# v4 findings (2026-11-04, UTC+8)
+- Latest Figma version 2026-11-03 20:11:52 UTC+8 (prev 19:31:43 UTC+8; before that 2026-10-28 19:06 UTC+8). File lastModified = same.
+- Produced by repo commit v0.5.2.119 (Windows prototype Figma sync, 2026-11-03 20:10 +0800) from design/hot-article-windows/index.html (v0.5.2.87–118 design changes). Tk gui.py had not changed since v0.5.2.86.
+- 36:2474 now has 51 frames: new 52:719 Step 01, 59:3907 Step 06 preview, 59:4385..59:9386 export/interaction states. 36:2619 still gone.
+- Key diffs vs v2 spec: 5 step tabs (06 only after 3 drafts complete); no footer on steps 1-4 (except step-4 partial); text-only status badges; Step1 no detail card, 7-col table, run log, click advances; Step2 topic card w/ count+action, full-width idea cards with argument/relation; Step3 topic card + full-width style cards; Step4 start button in word-count row, 取消生成 in log header, 运行日志 label; Step5/6 context w/o 本次创作 + category + full style text, no "每稿选择 1 个标题", preview keeps only selected title; 生成图文稿 opens export dialog directly (no handoff dialog).
+- Implemented in AIDocStudio commit 0bb02e5, tag v0.5.2.121. Shots: shots/*.png (175% DPI), compare/*_preview.jpg (Figma left, Tk right), after.png (step1), after_step2..6.png, figma.png (52:719).

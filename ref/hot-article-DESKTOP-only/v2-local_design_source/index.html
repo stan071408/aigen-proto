@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AIDocStudio · Windows 桌面设计预览</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#dce3e1;color:#162b2a;font-family:'Microsoft YaHei UI','Microsoft YaHei','Noto Sans SC',sans-serif;font-size:16px}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px solid #0067c0;outline-offset:2px}button:disabled{cursor:default}#viewport{margin:24px auto;position:relative}#canvas{transform-origin:top left;box-shadow:0 8px 30px #102a2720;overflow:hidden}#canvas>.node{flex-shrink:0}#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:14px 24px;background:#102a27;color:white;border-radius:6px;z-index:100;display:none;font-size:16px}.node{min-width:0;min-height:0;flex-shrink:0}.box{display:flex}.axis-V{flex-direction:column;align-items:stretch}.axis-H{flex-direction:row;align-items:center}.text{line-height:1.5;white-space:pre-line;overflow-wrap:anywhere}.choice{display:flex;align-items:center;gap:12px;min-height:40px;cursor:pointer;line-height:24px}.choice input{appearance:auto;accent-color:#197d72;width:18px;height:18px;flex:0 0 18px;margin:0}.choice span{min-width:0}.button{display:flex;align-items:center;justify-content:center;min-height:40px;height:40px;padding:0 16px;border-radius:4px;border:1px solid var(--border);color:var(--ink);background:var(--surface);white-space:nowrap;flex-shrink:0;line-height:24px}.button.primary{background:var(--accent);border-color:var(--accent);color:white;font-weight:700}.button.primary:hover{background:var(--accentHover)}.button:disabled{background:var(--border);color:var(--secondary);border-color:var(--border)}.button.quiet{background:transparent;border-color:transparent;color:var(--accent);padding:0 8px;min-height:32px;height:32px;font-size:14px}.button.rail,.button.railActive{background:transparent;border-color:transparent;color:var(--railText);justify-content:flex-start;padding:0 12px;height:48px}.button.railActive{background:var(--railActive);font-weight:700}.button.tab,.button.tabActive{border:0;background:transparent;border-radius:0;color:var(--secondary);padding:0 16px}.button.tabActive{color:var(--accent);font-weight:700;border-bottom:2px solid var(--accent)}.button.focus{outline:2px solid var(--focus);outline-offset:2px}.badge{font-size:14px;font-weight:700;line-height:21px;padding:4px 10px;border-radius:4px;white-space:nowrap}.input{height:40px;border:1px solid var(--border);border-radius:4px;padding:0 12px;background:white;color:var(--ink);min-width:0}.interactive{cursor:pointer}.interactive:hover{filter:brightness(.985)}.scroll{overflow-y:auto;overflow-x:hidden;scrollbar-gutter:stable}.scroll::-webkit-scrollbar{width:10px}.scroll::-webkit-scrollbar-thumb{background:#b6c6c1;border:2px solid #f7f9f9;border-radius:8px}.modal-shade{position:fixed;inset:0;z-index:90;background:#0b211b66;display:flex;align-items:center;justify-content:center}.modal-shade>.node{box-shadow:0 16px 50px #102a2730}.screen-note{font-size:14px;max-width:1440px;margin:12px auto 24px;padding:0 24px;color:#40554f}
+</style></head><body>
+<div id="viewport"><div id="canvas"></div></div><div class="screen-note">正文 16px，辅助说明 14px，按钮与输入框 40px。预览会按浏览器宽度缩放；实际 Windows 应用按系统 DPI 使用逻辑像素布局。</div>
+<div id="toast" role="status"></div>
+<script src="design-data.js?v=20261027-2"></script><script>
+const D=window.WINDOWS_DESIGN,T=D.tokens;
+// Local preview defaults; keep the Figma import package unchanged.
+const DEFAULT_TOPIC_COUNT=5;
+Object.entries(T).forEach(([k,v])=>document.documentElement.style.setProperty('--'+k,v));
+let current='step4',tab='similarity',selected={similarity:0,breadth:0,depth:0,merged:0},direction=[true,true,true],format='docx',source='saved',idea=0,style=0,lastScene='step5',exportScope='one',dialogOrigin='step5',resetReturn=null,resultScene='step5',resultDirections=['similarity','breadth','depth'],generationPending=false,pendingHandoff=false;
+const cache=new Map(D.screens.map(s=>[s.key,s]));
+const TITLES=['器材装上了，然后呢：一颗螺丝松了之后的事','从报修电话到巡检记录：健身器材管护卡在哪些环节','建得起，管不动：公共健身设施维护难背后的账与责'];
+const IDEAS=['公共服务的价值不仅在于建成数量，更在于持续可用；维护责任、预算与反馈闭环需要一同落地。','从一次报修到一次巡检，服务闭环的效率决定了公共设施的实际使用体验。','区分建设与管护的资金责任，才能让公共服务从交付走向长期运行。'];
+const STYLE_NAMES=['数字反差型','政策解释型','人物观察型','理性评论型'];
+const STYLE_TEXT=['从标题中的具体细节进入，用生活化的比较提出问题，再补上规则与事实依据。短段落降低阅读负担，让注意力从数字转向解释。','按“这是什么—与谁相关—如何判断—还需核实什么”的顺序组织内容。把复杂概念拆为短句，事实与解释分开，避免术语堆叠。','从具体人物的行动与处境出发，呈现问题怎样发生、不同角色怎样回应，再联系公共议题。','先区分事实与判断，再逐步展开证据和论点；说明适用边界，回应可能的反对意见。'];
+const DIRECTION_NAMES={similarity:'差异化稿',breadth:'广度稿',depth:'深度稿'};
+function visit(spec,fn){fn(spec);for(const ch of spec.children||[])visit(ch,fn)}
+function findSpec(spec,name){let match;visit(spec,n=>{if(n.name===name)match=n});return match}
+function isMergedView(){return current==='step6'||(current==='preview5'&&lastScene==='step6')}
+function sceneSpec(key){
+ const isResult=['step5','partial5','single5','dual5','breadth5','depth5','preview5'].includes(key);
+ const spec=JSON.parse(JSON.stringify(cache.get(key==='preview5'?(lastScene==='step6'?'step6':resultScene):key)));
+ if(key==='step1'){
+  const settings=findSpec(spec,'采集设置');
+  settings.children.find(n=>n.kind==='input').text=String(DEFAULT_TOPIC_COUNT);
+  const rows=findSpec(spec,'原标题列表');
+  rows.children=rows.children.slice(0,DEFAULT_TOPIC_COUNT+1);
+  findSpec(spec,'结果标题').children.find(n=>n.kind==='badge').text=(rows.children.length-1)+' 条';
+ }
+ if(isResult){
+  const strip=findSpec(spec,'稿件方向与批量导出');
+  if(strip){const all=findSpec(cache.get('step5'),'稿件方向与批量导出');strip.children=JSON.parse(JSON.stringify(all.children.filter(n=>!n.action?.startsWith('tab:')||resultDirections.includes(n.action.slice(4)))))}
+  if(key==='preview5'){const preview=findSpec(cache.get('preview5'),'文章预览展开');visit(spec,n=>{if(n.children)n.children=n.children.map(ch=>ch.name==='文章预览入口'?JSON.parse(JSON.stringify(preview)):ch)})}
+  visit(spec,n=>{if(n.kind==='text'&&n.text?.startsWith('当前稿：'))n.text='当前稿：'+DIRECTION_NAMES[tab]+' · 标题选择已保存'})
+ }
+ return spec;
+}
+function applyLayout(n,s,parentAxis){
+ n.dataset.name=s.name||s.text||s.kind;
+ if(s.w)n.style.width=s.w+'px';if(s.h)n.style.height=s.h+'px';
+ if(s.fillY){n.style.flex='1 1 0';n.style.minHeight='0'}
+ else if(s.fill){if(s.kind==='text'||parentAxis==='H'){n.style.flex='1 1 0';n.style.minWidth='0'}else{n.style.flex='1 1 0';n.style.minHeight='0'}}
+ if(s.action){n.dataset.action=s.action;n.classList.add('interactive');if(s.kind!=='button'&&s.kind!=='choice'){n.tabIndex=0;n.setAttribute('role','button');n.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();act(s.action,n)}}}n.onclick=e=>{e.stopPropagation();if(s.kind==='choice'&&e.target.tagName!=='INPUT')return;act(s.action,n)}}
+}
+function render(s,parentAxis='V'){
+ let n;
+ if(s.kind==='text'){n=document.createElement('div');n.className='node text';n.textContent=s.text;n.style.fontSize=s.size+'px';n.style.fontWeight=s.bold?'700':'400';n.style.color=T[s.color]||T.ink}
+ else if(s.kind==='button'){n=document.createElement('button');n.className='node button '+(s.variant||'secondary');const key={'图文生成':'image_text','AI 热度图文生成':'ai_hot_article','头条发布':'toutiao_publish','系统设置':'system_settings','API 连接设置':'api_settings'}[s.text];if(key){const img=document.createElement('img');img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(D.assets[key]);img.alt='';img.width=20;img.height=20;img.style.marginRight='10px';n.append(img)}const label=document.createElement('span');label.textContent=s.text;n.append(label);n.disabled=!!s.disabled}
+ else if(s.kind==='input'){n=document.createElement('input');n.className='node input';n.value=s.text;n.setAttribute('aria-label',s.placeholder||s.text);if(/^\d+$/.test(s.text))n.type='number';if(s.focus)n.style.outline='2px solid '+T.focus;n.onclick=e=>e.stopPropagation()}
+ else if(s.kind==='badge'){n=document.createElement('span');n.className='node badge';n.textContent=s.text;const tone=s.tone||'accent';n.style.background=T[tone==='neutral'?'subtle':tone==='warning'?'warningSoft':tone==='error'?'errorSoft':tone==='success'?'successSoft':'accentSoft'];n.style.color=T[tone==='neutral'?'secondary':tone==='warning'?'warning':tone==='error'?'error':tone==='success'?'success':'accent']}
+ else if(s.kind==='choice'){n=document.createElement('label');n.className='node choice';const c=document.createElement('input');c.type=s.radio?'radio':'checkbox';if(s.radio&&s.action)c.name=s.action.startsWith('idea')?'idea':s.action.startsWith('style')?'style':s.action.startsWith('source')?'source':s.action.startsWith('format')?'format':'candidate';c.checked=s.selected;c.disabled=!!s.disabled;c.tabIndex=s.disabled?-1:0;const val=document.createElement('span');val.textContent=s.text;n.append(c,val);if(s.action?.startsWith('candidate:')){c.name='candidate';c.checked=selected[isMergedView()?'merged':tab]===Number(s.action.split(':')[1])}if(s.action?.startsWith('direction')){c.checked=direction[Number(s.action.slice(-1))]}if(s.action?.startsWith('style'))c.checked=style===Number(s.action.slice(-1));if(s.action?.startsWith('idea'))c.checked=idea===Number(s.action.slice(-1));}
+ else{n=document.createElement('div');n.className='node box axis-'+(s.axis||'V');n.style.gap=(s.gap||0)+'px';if(s.axis==='H'&&s.fillY)n.style.alignItems='stretch';const p=Array.isArray(s.pad)?s.pad:[s.pad||0,s.pad||0];n.style.padding=p[0]+'px '+p[1]+'px';if(s.bg)n.style.background=T[s.bg];if(s.border)n.style.border='1px solid '+T[s.border];if(s.radius)n.style.borderRadius=s.radius+'px';if(s.scroll)n.classList.add('scroll');for(const ch of s.children||[])n.append(render(ch,s.axis));}
+ applyLayout(n,s,parentAxis);return n;
+}
+function show(key,keepTab=false){if(!cache.has(key)){toast('该区域沿用现有宿主功能');return}current=key;if(['step5','single5','dual5','partial5'].includes(key)){resultScene=key;if(!keepTab){resultDirections=key==='single5'?['similarity']:['dual5','partial5'].includes(key)?['similarity','breadth']:['similarity','breadth','depth'];tab=resultDirections[0]}}if(key==='breadth5'||key==='depth5'){resultScene='step5';resultDirections=['similarity','breadth','depth'];tab=key==='breadth5'?'breadth':'depth'}const spec=sceneSpec(key);document.getElementById('canvas').replaceChildren(render(spec));document.getElementById('canvas').style.width=(spec.w||1440)+'px';document.getElementById('canvas').style.height=(spec.h||1000)+'px';fit();updateTitles();}
+function fit(){const s=cache.get(current),w=s.w||1440,h=s.h||1000,scale=Math.min(1,(innerWidth-48)/w);document.getElementById('canvas').style.transform='scale('+scale+')';document.getElementById('viewport').style.width=(w*scale)+'px';document.getElementById('viewport').style.height=(h*scale)+'px'}addEventListener('resize',fit);
+function updateTitles(){document.querySelectorAll('[data-action^="candidate:"]').forEach(n=>{const idx=Number(n.dataset.action.split(':')[1]),sel=idx===selected[isMergedView()?'merged':tab];if(n.classList.contains('box')){n.style.background=T[sel?'accentSoft':'surface'];n.style.borderColor=T[sel?'accent':'border']}const input=n.querySelector('input');if(input)input.checked=sel});document.querySelectorAll('[data-action^="tab:"]').forEach(n=>{n.classList.toggle('tabActive',n.dataset.action==='tab:'+tab);n.classList.toggle('tab',n.dataset.action!=='tab:'+tab)});const title=document.querySelector('[data-name="文章预览展开"]>.text');if(title)title.textContent=TITLES[selected[isMergedView()?'merged':tab]];const gen=document.querySelector('[data-action="running4"]');if(gen&&['step4','compact4'].includes(current))gen.disabled=!direction.some(Boolean);
+ const count=direction.filter(Boolean).length;document.querySelectorAll('[data-name="已选 3 个方向"]').forEach(n=>n.textContent='已选 '+count+' 个方向');
+ document.querySelectorAll('[data-action^="idea"],[data-action^="style"]').forEach(n=>{const isIdea=n.dataset.action.startsWith('idea'),idx=Number(n.dataset.action.slice(-1)),sel=(isIdea?idea:style)===idx;if(n.classList.contains('box')){n.style.background=T[sel?'accentSoft':'surface'];n.style.borderColor=T[sel?'accent':'border']}const c=n.querySelector('input');if(c)c.checked=sel});
+ document.querySelectorAll('[data-name="立意行"] .text').forEach((n,i)=>{if(i===1)n.textContent=IDEAS[idea]});
+ const aside=document.querySelector('[data-name="稿件上下文"]');if(aside){const ideaText=aside.querySelector('[data-name="'+IDEAS[0]+'"]'),styleText=aside.querySelector('[data-name="数字反差型"]');if(ideaText)ideaText.textContent=IDEAS[idea];if(styleText)styleText.textContent=STYLE_NAMES[style]}
+ const styleBox=document.querySelector('[data-name="风格内容"]');if(styleBox){styleBox.children[0].textContent=STYLE_NAMES[style];styleBox.children[1].textContent=STYLE_TEXT[style]}
+ const detail=document.querySelector('[data-name="风格完整详情"]');if(detail){detail.querySelector('[data-name="详情标题"] .text').textContent=STYLE_NAMES[style];detail.querySelectorAll(':scope>.text')[1].textContent=STYLE_TEXT[style]}
+}
+function toast(msg){const n=document.getElementById('toast');n.textContent=msg;n.style.display='block';clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>n.style.display='none',3500)}
+function dialog(key,scope){dialogOrigin=current;exportScope=scope||'one';const shade=document.createElement('div');shade.className='modal-shade';shade.setAttribute('role','dialog');shade.setAttribute('aria-modal','true');shade.append(render(cache.get(key)));if(key==='exportDialog'){const t=shade.querySelector('[data-name="选择导出格式与保存位置 · 共 3 稿"]');const count=resultDirections.length;if(t)t.textContent='选择导出格式与保存位置 · 共 '+(scope==='all'?count:1)+' 稿';const dir=shade.querySelector('input:not([type=radio])');if(dir)dir.value=localStorage.getItem('windows-design-export-dir')||'系统桌面';shade.querySelectorAll('input[type=radio]').forEach((n,i)=>n.checked=(i===0)===(format==='docx'))}else{const title=shade.querySelector('[data-name="'+TITLES[0]+'"]');if(title)title.textContent=TITLES[selected[isMergedView()?'merged':tab]];const b=shade.querySelector('.badge');if(b)b.textContent=isMergedView()?'三稿合并稿':{similarity:'差异化稿',breadth:'广度稿',depth:'深度稿'}[tab]}document.body.append(shade);shade.querySelector('input,button')?.focus()}
+function closeDialog(){document.querySelector('.modal-shade')?.remove();document.querySelector('[data-action="exportOne"]')?.focus()}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDialog();const modal=document.querySelector('.modal-shade');if(modal&&e.key==='Tab'){const fields=[...modal.querySelectorAll('button,input')].filter(n=>!n.disabled);if(e.shiftKey&&document.activeElement===fields[0]){e.preventDefault();fields.at(-1)?.focus()}else if(!e.shiftKey&&document.activeElement===fields.at(-1)){e.preventDefault();fields[0]?.focus()}}});
+function act(action,node){
+ if(action.startsWith('candidate:')){selected[isMergedView()?'merged':tab]=Number(action.split(':')[1]);updateTitles();return}
+ if(action.startsWith('tab:')){tab=action.split(':')[1];show(resultScene,true);return}
+ if(action.startsWith('direction')){const i=Number(action.slice(-1));direction[i]=!direction[i];const c=node.querySelector('input');if(c)c.checked=direction[i];const panel=node.closest('[data-name="差异化稿"],[data-name="广度稿"],[data-name="深度稿"]');if(panel){panel.style.background=T[direction[i]?'accentSoft':'surface'];panel.style.borderColor=T[direction[i]?'accent':'border']}updateTitles();return}
+ if(action.startsWith('idea')){idea=Number(action.slice(-1));show(resetReturn||'step2');resetReturn=null;toast('立意已更换，写作风格保留');return}
+ if(action.startsWith('style')){style=Number(action.slice(-1));show(resetReturn||'step3');resetReturn=null;toast('写作风格已选择');return}
+ if(action==='exportOne'||action==='exportMerged'){pendingHandoff=false;dialog('exportDialog','one');return}if(action==='exportAll'){pendingHandoff=false;dialog('exportDialog','all');return}
+ if(action==='illustrate'||action==='handoff'){dialog('handoffDialog');return}
+ if(action==='close'){pendingHandoff=false;closeDialog();return}
+ if(action==='formatDocx'||action==='formatMd'){format=action==='formatDocx'?'docx':'md';document.querySelectorAll('.modal-shade input[type=radio]').forEach((n,i)=>n.checked=(i===0)===(format==='docx'));return}
+ if(action==='chooseDirectory'){const n=document.querySelector('.modal-shade input:not([type=radio])');if(n){n.readOnly=false;n.focus();n.select();toast('设计示例：输入目录名称以验证目录记忆；正式版使用系统文件夹选择器。')}return}
+ if(action==='confirmExport'){const dir=document.querySelector('.modal-shade input:not([type=radio])')?.value||'系统桌面';localStorage.setItem('windows-design-export-dir',dir);closeDialog();toast(pendingHandoff?'设计交接：已演示保存本稿 → 准备 DOCX 与配图计划 → 图文生成，由用户手动开始':'设计示例：'+(exportScope==='all'?'全部稿件':'当前稿件')+'将以 .'+format+' 保存到 '+dir);pendingHandoff=false;return}
+ if(action==='confirmHandoff'){closeDialog();pendingHandoff=true;dialog('exportDialog','one');return}
+ if(action==='sourceTitle'||action==='sourceSaved'){source=action==='sourceTitle'?'title':'saved';document.querySelectorAll('[data-name="风格获取设置"] input[type=radio]').forEach((n,i)=>n.checked=(i===0)===(source==='title'));return}
+ if(action==='preview5'){lastScene=current;show('preview5');return}
+ if(action==='step5'&&current==='preview5'){show(lastScene==='step6'?'step6':resultScene,true);return}
+ if(action==='running4'&&['step4','compact4'].includes(current)){resultDirections=['similarity','breadth','depth'].filter((_,i)=>direction[i]);generationPending=true;show('running4');return}
+ if(action==='step5'&&current==='running4'&&generationPending){const mode=resultDirections.length===1?'single5':resultDirections.length===2?'dual5':'step5';tab=resultDirections[0];generationPending=false;show(mode,true);return}
+ if(action==='topic'){toast('原标题已选择，可继续提炼立意');return}
+ if(action==='favorite'){toast('常用风格最多 5 个，已保留当前设置');return}
+ if(action==='history'){toast('历史任务：支持恢复中断任务与查看旧稿版本');return}
+ if(action==='empty1'||action==='empty2'){toast('清空当前结果及下游选择；保留风格库');return}
+ if((action==='step2'||action==='step3')&&['step4','compact4'].includes(current)&&node.textContent==='重新设定')resetReturn=current;
+ if(cache.has(action)){show(action);return}toast('此入口为设计说明，生产业务保持独立');
+}
+const initialScene=new URLSearchParams(location.search).get('scene');
+show(cache.has(initialScene)?initialScene:'step4');
+</script></body></html>
