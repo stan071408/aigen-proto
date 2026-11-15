@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AIGenPlatform · 内容库类型筛选 · 方案A 两级胶囊 · 261115 v0.1.0</title>
+<style>
+:root{--accent:#1c5fc4;--accent-d:#164ea3;--bg:#f1f6fc;--paper:#fff;--ink:#14213a;--muted:#596579;--faint:#8592a6;--line:#d9e3f0;--line2:#e7eef7;--soft:#eef4fc;--soft2:#e6eef8;--shadow:0 10px 30px #12305c14}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.55 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+.page{max-width:1180px;margin:0 auto;padding:20px 20px 28px}
+.page-h{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px}
+.eyebrow{font-size:10.5px;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;font-weight:650}
+.page-h h1{margin:3px 0 0;font-size:23px;letter-spacing:-.02em;line-height:1.25}
+.page-h p{margin:3px 0 0;font-size:12px;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;padding:0 14px;border:1px solid var(--line);background:#fff;border-radius:12px;font:inherit;color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-d);color:#fff}
+.input{height:36px;padding:0 12px;border:2px solid #6b7c94;border-radius:12px;background:#fff;font:inherit;color:var(--ink);min-width:0}
+.input:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(28,95,196,.28)}
+.bar{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.lab{font-size:12px;color:var(--muted);flex:none}
+.seg{display:inline-flex;background:var(--soft2);border:1px solid var(--line);border-radius:12px;padding:2px}
+.seg button{border:0;background:transparent;border-radius:9px;padding:6px 14px;font:inherit;font-size:12.5px;font-weight:600;color:#3c4c64;cursor:pointer}
+.seg button.on{background:var(--accent);color:#fff;box-shadow:0 1px 3px #14213a29}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 11px;font-size:12px;color:#3c4c64;cursor:pointer;line-height:20px}
+.chip:hover{border-color:#b9cce6}
+.chip.on{background:#e3edfc;border-color:#b7cdf0;color:#17427f;font-weight:600}
+.chip .n{font-size:10.5px;color:var(--faint);margin-left:5px}
+.chip.on .n{color:#4a76b5}
+.chip.sub{font-size:11.5px;padding:2px 9px;line-height:18px}
+.search{display:flex;align-items:center;gap:8px;flex:1;min-width:200px}
+.search .input{flex:1}
+.grow{flex:1}
+.hint{font-size:11.5px;color:var(--faint)}
+.list{background:var(--paper);border:1px solid var(--line);border-radius:14px;margin-top:12px;overflow:hidden;box-shadow:var(--shadow)}
+.list-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:#fbfdff}
+.list-h b{font-size:13px}
+.list-h span{font-size:11.5px;color:var(--faint)}
+.item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--line2);cursor:pointer}
+.item:last-child{border-bottom:0}
+.item:hover{background:#f8fbff}
+.item .tt{min-width:0;flex:1}
+.item .tt b{display:block;font-size:13.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .tt small{display:block;font-size:11.5px;color:var(--faint);margin-top:2px}
+.tags{display:flex;gap:5px;flex:none;flex-wrap:wrap;justify-content:flex-end;max-width:420px}
+.tag{font-size:11px;line-height:20px;padding:0 8px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#4a5568;white-space:nowrap}
+.tag.kind{background:#eef4fc;border-color:#cfe0f7;color:#1c5fc4;font-weight:600}
+.tag.sub{background:#f6f8fb;color:#596579}
+.tag.img{background:#f3f0fb;border-color:#ddd4f3;color:#5b45a8;font-weight:600}
+.meta{font-size:11.5px;color:var(--faint);flex:none;text-align:right;min-width:96px}
+.empty{padding:44px 20px;text-align:center;color:var(--faint);font-size:12.5px}
+.empty b{display:block;font-size:13.5px;color:#596579;margin-bottom:4px}
+.foot{margin-top:14px;font-size:11.5px;color:var(--faint);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-h">
+    <div><div class="eyebrow">内容与产物</div><h1>内容库</h1><p>方案 A · 两级胶囊：先分大类，再选具体稿型，多选即交叉过滤。</p></div>
+    <div class="row"><button class="btn">导出</button><button class="btn primary">新建内容</button></div>
+  </div>
+
+  <div class="bar">
+    <div class="row">
+      <span class="lab">内容大类</span>
+      <div class="seg" id="seg" role="tablist">
+        <button data-k="all" class="on">全部内容</button>
+        <button data-k="article">文章</button>
+        <button data-k="image">图片</button>
+      </div>
+      <span class="grow"></span>
+      <div class="search"><span class="hint">搜索</span><input class="input" id="q" placeholder="搜索标题、关键词"></div>
+    </div>
+    <div class="row" id="lv2Row">
+      <span class="lab">文章类型</span>
+      <div class="chips" id="lv2">
+        <button class="chip on" data-k="all">全部文章<span class="n" id="nAll">—</span></button>
+        <button class="chip" data-k="text">纯文字稿<span class="n" id="nText">—</span></button>
+        <button class="chip" data-k="illus">图文稿<span class="n" id="nIllus">—</span></button>
+      </div>
+      <span class="hint">选「纯文字稿 / 图文稿」后再挑具体稿型</span>
+    </div>
+    <div class="row" id="lv3Row">
+      <span class="lab">具体稿型</span>
+      <div class="chips" id="lv3"></div>
+    </div>
+  </div>
+
+  <div class="list">
+    <div class="list-h"><b>内容列表</b><span id="count">—</span></div>
+    <div id="items"></div>
+  </div>
+
+  <div class="foot"><span>方案 A：大类分段 + 文章类型胶囊 + 稿型胶囊，同一屏内三级都能看见。</span><span id="footCount"></span></div>
+</div>
+
+<script>
+const TYPES={
+  text:['原稿','差异化稿','广度稿','深度稿','合并稿'],
+  illus:['原图文稿','差异化图文稿','广度图文稿','深度图文稿','合并图文稿']
+};
+const DATA=[
+ {t:'社区食堂如何留住居民',kind:'article',at:'text',sub:'合并稿',src:'主题生成',d:'11-15 07:32',n:'1,842 字'},
+ {t:'社区食堂如何留住居民',kind:'article',at:'text',sub:'原稿',src:'主题生成',d:'11-15 07:31',n:'1,120 字'},
+ {t:'年轻人为什么开始重新关注社区生活',kind:'article',at:'text',sub:'深度稿',src:'热榜生成',d:'11-15 08:02',n:'1,960 字'},
+ {t:'老旧小区加装电梯，居民最关心哪些问题',kind:'article',at:'text',sub:'差异化稿',src:'热榜生成',d:'11-14 09:20',n:'1,388 字'},
+ {t:'城市绿道建成后，周边生活有哪些变化',kind:'article',at:'text',sub:'广度稿',src:'热榜生成',d:'11-14 10:05',n:'1,510 字'},
+ {t:'三国野史里最被低估的五场战役',kind:'article',at:'text',sub:'原稿',src:'主题生成',d:'11-13 07:30',n:'1,236 字'},
+ {t:'社区食堂如何留住居民',kind:'article',at:'illus',sub:'合并图文稿',src:'主题生成',d:'11-15 07:32',n:'封面 1 + 配图 5'},
+ {t:'社区食堂如何留住居民',kind:'article',at:'illus',sub:'原图文稿',src:'主题生成',d:'11-15 07:31',n:'封面 1 + 配图 5'},
+ {t:'年轻人为什么开始重新关注社区生活',kind:'article',at:'illus',sub:'深度图文稿',src:'热榜生成',d:'11-15 08:02',n:'封面 1 + 配图 5'},
+ {t:'老旧小区加装电梯，居民最关心哪些问题',kind:'article',at:'illus',sub:'差异化图文稿',src:'热榜生成',d:'11-14 09:20',n:'封面 1 + 配图 4'},
+ {t:'城市绿道建成后，周边生活有哪些变化',kind:'article',at:'illus',sub:'广度图文稿',src:'热榜生成',d:'11-14 10:05',n:'封面 1 + 配图 5'},
+ {t:'社区食堂配图 01',kind:'image',at:'',sub:'',src:'主题生成',d:'11-15 07:32',n:'1080 × 720'},
+ {t:'社区食堂封面',kind:'image',at:'',sub:'',src:'主题生成',d:'11-15 07:31',n:'1080 × 1440'},
+ {t:'老旧小区电梯配图 02',kind:'image',at:'',sub:'',src:'热榜生成',d:'11-14 09:21',n:'1080 × 720'}
+];
+const S={kind:'all',at:'all',subs:new Set(),q:''};
+const el=s=>document.querySelector(s);
+function counts(){
+  const k=S.kind, q=S.q.trim();
+  const base=DATA.filter(x=>k==='all'||x.kind===k).filter(x=>!q||x.t.includes(q));
+  const text=base.filter(x=>x.at==='text'),illus=base.filter(x=>x.at==='illus');
+  return {all:base.length,text:text.length,illus:illus.length};
+}
+function renderLv3(){
+  const k=S.kind, c=counts();
+  const wrap=el('#lv3');
+  if(k==='image'){wrap.innerHTML='<span class="hint">图片不分稿型，直接按大类过滤。</span>';el('#lv3Row').style.display='';el('#lv2Row').style.display='none';return}
+  el('#lv2Row').style.display='';
+  const groups=[];
+  if(S.at==='all'||S.at==='text')groups.push(['text','纯文字稿',TYPES.text]);
+  if(S.at==='all'||S.at==='illus')groups.push(['illus','图文稿',TYPES.illus]);
+  wrap.innerHTML=groups.map(([gk,gl,list])=>list.map(t=>{
+    const n=DATA.filter(x=>x.kind==='article'&&x.at===gk&&x.sub===t&&(!S.q.trim()||x.t.includes(S.q.trim())).length);
+    return `<button class="chip sub ${S.subs.has(t)?'on':''}" data-sub="${t}">${t}<span class="n">${n}</span></button>`;
+  }).join('')).join('');
+  el('#nAll').textContent=c.text+c.illus;
+  el('#nText').textContent=c.text;
+  el('#nIllus').textContent=c.illus;
+}
+function allowed(x){
+  if(S.kind==='image')return x.kind==='image';
+  if(S.kind==='article'&&x.kind!=='article')return false;
+  if(S.q.trim()&&!x.t.includes(S.q.trim()))return false;
+  if(S.at!=='all'&&x.kind==='article'&&x.at!==S.at)return false;
+  if(S.subs.size)return S.subs.has(x.sub);
+  return true;
+}
+function renderList(){
+  const rows=DATA.filter(allowed);
+  el('#items').innerHTML=rows.length?rows.map(x=>{
+    const kindTag=x.kind==='image'?'<span class="tag img">图片</span>':`<span class="tag kind">文章</span><span class="tag sub">${x.at==='text'?'纯文字稿':'图文稿'}</span>${x.sub?`<span class="tag sub">${x.sub}</span>`:''}`;
+    return `<div class="item"><div class="tt"><b>${x.t}</b><small>${x.src} · ${x.d}</small></div><div class="tags">${kindTag}</div><div class="meta">${x.n}</div></div>`;
+  }).join(''):`<div class="empty"><b>没有符合条件的内容</b>换个类型或清空搜索再试。</div>`;
+  el('#count').textContent=`共 ${rows.length} 项`;
+  el('#footCount').textContent=`当前：${S.kind==='all'?'全部内容':S.kind==='image'?'图片':'文章'}${S.subs.size?' · '+[...S.subs].join('、'):''}`;
+}
+function paint(){renderLv3();renderList()}
+document.querySelectorAll('#seg button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#seg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  S.kind=b.dataset.k;S.at='all';S.subs.clear();paint();
+});
+document.querySelectorAll('#lv2 .chip').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#lv2 .chip').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  S.at=b.dataset.k;S.subs.clear();
+  if(S.at!=='all'){S.kind='article';document.querySelectorAll('#seg button').forEach(x=>x.classList.toggle('on',x.dataset.k==='article'))}
+  paint();
+});
+el('#lv3').addEventListener('click',e=>{
+  const b=e.target.closest('[data-sub]');if(!b)return;
+  const t=b.dataset.sub;S.subs.has(t)?S.subs.delete(t):S.subs.add(t);paint();
+});
+el('#q').addEventListener('input',e=>{S.q=e.target.value;paint()});
+paint();
+</script>
+</body>
+</html>

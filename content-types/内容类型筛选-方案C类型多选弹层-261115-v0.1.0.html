@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AIGenPlatform · 内容库类型筛选 · 方案C 类型多选弹层 · 261115 v0.1.0</title>
+<style>
+:root{--accent:#1c5fc4;--accent-d:#164ea3;--bg:#f1f6fc;--paper:#fff;--ink:#14213a;--muted:#596579;--faint:#8592a6;--line:#d9e3f0;--line2:#e7eef7;--soft:#eef4fc;--soft2:#e6eef8;--shadow:0 10px 30px #12305c14}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.55 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+.page{max-width:1180px;margin:0 auto;padding:20px 20px 28px}
+.page-h{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px}
+.eyebrow{font-size:10.5px;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;font-weight:650}
+.page-h h1{margin:3px 0 0;font-size:23px;letter-spacing:-.02em;line-height:1.25}
+.page-h p{margin:3px 0 0;font-size:12px;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;padding:0 14px;border:1px solid var(--line);background:#fff;border-radius:12px;font:inherit;color:var(--ink);cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-d);color:#fff}
+.btn.sm{height:30px;padding:0 12px;font-size:12px;border-radius:10px}
+.input{height:36px;padding:0 12px;border:2px solid #6b7c94;border-radius:12px;background:#fff;font:inherit;color:var(--ink);min-width:0}
+.input:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(28,95,196,.28)}
+.bar{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow)}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.lab{font-size:12px;color:var(--muted);flex:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 11px;font-size:12px;color:#3c4c64;cursor:pointer;line-height:20px}
+.chip.on{background:#e3edfc;border-color:#b7cdf0;color:#17427f;font-weight:600}
+.search{display:flex;align-items:center;gap:8px;flex:1;min-width:200px}
+.search .input{flex:1}
+.grow{flex:1}
+.hint{font-size:11.5px;color:var(--faint)}
+.pick{position:relative;flex:none}
+.pick-btn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 12px;border:2px solid #6b7c94;border-radius:12px;background:#fff;font:inherit;font-size:12.5px;color:var(--ink);cursor:pointer}
+.pick-btn:hover{border-color:var(--accent)}
+.pick-btn.on{border-color:var(--accent);box-shadow:0 0 0 3px rgba(28,95,196,.22)}
+.pick-btn .cnt{background:var(--accent);color:#fff;border-radius:999px;font-size:10.5px;line-height:17px;padding:0 6px;font-weight:700}
+.pick-btn .cr{font-size:10px;color:#8592a6}
+.pop{position:absolute;top:44px;left:0;z-index:12;width:330px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 40px #12305c26;padding:10px;display:none}
+.pop.on{display:block}
+.grp-t{display:flex;align-items:center;gap:8px;padding:7px 6px;font-size:12px;font-weight:650;color:#26344c;cursor:pointer;border-radius:8px}
+.grp-t:hover{background:#f5f9ff}
+.grp-t .box,.leaf .box{width:16px;height:16px;border:2px solid #6b7c94;border-radius:4px;flex:none;display:grid;place-items:center;background:#fff;color:#fff;font-size:10px}
+.grp-t.partial .box{background:#cfe0f7;border-color:#1c5fc4;color:#1c5fc4}
+.grp-t.full .box{background:var(--accent);border-color:var(--accent);color:#fff}
+.grp-t .m{flex:1}
+.grp-t .n{font-size:11px;color:var(--faint);font-weight:400}
+.leaves{display:flex;flex-direction:column;gap:1px;padding:2px 0 6px 24px}
+.leaf{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:8px;font-size:12px;color:#3c4c64;cursor:pointer}
+.leaf:hover{background:#f5f9ff}
+.leaf .box{width:15px;height:15px;border-radius:4px;font-size:9px}
+.leaf.on .box{background:var(--accent);border-color:var(--accent)}
+.leaf .m{flex:1}
+.leaf .n{font-size:10.5px;color:var(--faint)}
+.pop-f{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px dashed var(--line);padding:9px 6px 2px;margin-top:4px}
+.linkbtn{border:0;background:none;color:var(--accent);font-size:12px;cursor:pointer;padding:2px 4px}
+.linkbtn:hover{text-decoration:underline}
+.badge{display:inline-flex;align-items:center;gap:5px;border:1px solid #cfe0f7;background:#eef4fc;color:#17427f;border-radius:999px;font-size:11.5px;padding:2px 8px;line-height:18px}
+.badge .x{cursor:pointer;color:#4a76b5;font-weight:700;margin-left:2px}
+.list{background:var(--paper);border:1px solid var(--line);border-radius:14px;margin-top:12px;overflow:hidden;box-shadow:var(--shadow)}
+.list-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:#fbfdff}
+.list-h b{font-size:13px}
+.list-h span{font-size:11.5px;color:var(--faint)}
+.item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--line2);cursor:pointer}
+.item:last-child{border-bottom:0}
+.item:hover{background:#f8fbff}
+.item .tt{min-width:0;flex:1}
+.item .tt b{display:block;font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .tt small{display:block;font-size:11.5px;color:var(--faint);margin-top:2px}
+.tags{display:flex;gap:5px;flex:none;flex-wrap:wrap;justify-content:flex-end;max-width:420px}
+.tag{font-size:11px;line-height:20px;padding:0 8px;border-radius:999px;border:1px solid var(--line);background:#fff;color:#4a5568;white-space:nowrap}
+.tag.kind{background:#eef4fc;border-color:#cfe0f7;color:#1c5fc4;font-weight:600}
+.tag.sub{background:#f6f8fb;color:#596579}
+.tag.img{background:#f3f0fb;border-color:#ddd4f3;color:#5b45a8;font-weight:600}
+.meta{font-size:11.5px;color:var(--faint);flex:none;text-align:right;min-width:96px}
+.empty{padding:44px 20px;text-align:center;color:var(--faint);font-size:12.5px}
+.empty b{display:block;font-size:13.5px;color:#596579;margin-bottom:4px}
+.foot{margin-top:14px;font-size:11.5px;color:var(--faint);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-h">
+    <div><div class="eyebrow">内容与产物</div><h1>内容库</h1><p>方案 C · 类型多选弹层：工具栏只占一行，按组勾选具体稿型，选完自动收起。</p></div>
+    <div class="row"><button class="btn">导出</button><button class="btn primary">新建内容</button></div>
+  </div>
+
+  <div class="bar">
+    <div class="row">
+      <div class="pick">
+        <button class="pick-btn" id="pickBtn"><span>内容类型</span><span class="cnt" id="pickCnt" hidden>0</span><span class="cr">▾</span></button>
+        <div class="pop" id="pop">
+          <div id="popBody"></div>
+          <div class="pop-f"><button class="linkbtn" id="clearPop">清除全部</button><button class="btn primary sm" id="done">完成</button></div>
+        </div>
+      </div>
+      <div class="search"><span class="hint">搜索</span><input class="input" id="q" placeholder="搜索标题、关键词"></div>
+      <span class="lab">来源</span>
+      <div class="chips" id="srcs">
+        <button class="chip on" data-src="all">全部</button>
+        <button class="chip" data-src="主题生成">主题生成</button>
+        <button class="chip" data-src="热榜生成">热榜生成</button>
+      </div>
+    </div>
+    <div class="row" id="badgeRow" style="margin-top:8px;display:none">
+      <span class="lab">已选类型</span>
+      <div class="chips" id="badges"></div>
+      <button class="linkbtn" id="clearBadges">清空</button>
+    </div>
+  </div>
+
+  <div class="list">
+    <div class="list-h"><b>内容列表</b><span id="count">—</span></div>
+    <div id="items"></div>
+  </div>
+
+  <div class="foot"><span>方案 C：类型多选放在弹层里，列表中不再占纵向空间；已选类型以胶囊回显。</span><span id="footCount"></span></div>
+</div>
+
+<script>
+const G={
+ article:{label:'文章',groups:[
+   {key:'text',label:'纯文字稿',types:['原稿','差异化稿','广度稿','深度稿','合并稿']},
+   {key:'illus',label:'图文稿',types:['原图文稿','差异化图文稿','广度图文稿','深度图文稿','合并图文稿']}
+ ]},
+ image:{label:'图片',groups:[]}
+};
+const DATA=[
+ {t:'社区食堂如何留住居民',kind:'article',at:'text',sub:'合并稿',src:'主题生成',d:'11-15 07:32',n:'1,842 字'},
+ {t:'社区食堂如何留住居民',kind:'article',at:'text',sub:'原稿',src:'主题生成',d:'11-15 07:31',n:'1,120 字'},
+ {t:'年轻人为什么开始重新关注社区生活',kind:'article',at:'text',sub:'深度稿',src:'热榜生成',d:'11-15 08:02',n:'1,960 字'},
+ {t:'老旧小区加装电梯，居民最关心哪些问题',kind:'article',at:'text',sub:'差异化稿',src:'热榜生成',d:'11-14 09:20',n:'1,388 字'},
+ {t:'城市绿道建成后，周边生活有哪些变化',kind:'article',at:'text',sub:'广度稿',src:'热榜生成',d:'11-14 10:05',n:'1,510 字'},
+ {t:'三国野史里最被低估的五场战役',kind:'article',at:'text',sub:'原稿',src:'主题生成',d:'11-13 07:30',n:'1,236 字'},
+ {t:'社区食堂如何留住居民',kind:'article',at:'illus',sub:'合并图文稿',src:'主题生成',d:'11-15 07:32',n:'封面 1 + 配图 5'},
+ {t:'社区食堂如何留住居民',kind:'article',at:'illus',sub:'原图文稿',src:'主题生成',d:'11-15 07:31',n:'封面 1 + 配图 5'},
+ {t:'年轻人为什么开始重新关注社区生活',kind:'article',at:'illus',sub:'深度图文稿',src:'热榜生成',d:'11-15 08:02',n:'封面 1 + 配图 5'},
+ {t:'老旧小区加装电梯，居民最关心哪些问题',kind:'article',at:'illus',sub:'差异化图文稿',src:'热榜生成',d:'11-14 09:20',n:'封面 1 + 配图 4'},
+ {t:'城市绿道建成后，周边生活有哪些变化',kind:'article',at:'illus',sub:'广度图文稿',src:'热榜生成',d:'11-14 10:05',n:'封面 1 + 配图 5'},
+ {t:'社区食堂配图 01',kind:'image',at:'',sub:'',src:'主题生成',d:'11-15 07:32',n:'1080 × 720'},
+ {t:'社区食堂封面',kind:'image',at:'',sub:'',src:'主题生成',d:'11-15 07:31',n:'1080 × 1440'},
+ {t:'老旧小区电梯配图 02',kind:'image',at:'',sub:'',src:'热榜生成',d:'11-14 09:21',n:'1080 × 720'}
+];
+const S={types:new Set(),image:false,src:'all',q:''};
+const el=s=>document.querySelector(s);
+const cnt=(at,sub)=>DATA.filter(x=>x.kind==='article'&&(!at||x.at===at)&&(!sub||x.sub===sub)).length;
+const imgCnt=()=>DATA.filter(x=>x.kind==='image').length;
+function anyType(){return S.types.size>0||S.image}
+function popHTML(){
+  let h='';
+  G.article.groups.forEach(g=>{
+    const total=g.types.length,on=g.types.filter(t=>S.types.has(t)).length;
+    h+=`<div class="grp-t ${on===total?'full':on?'partial':''}" data-grp="${g.key}"><span class="box">${on===total?'✓':on?'-':''}</span><span class="m">${g.label}</span><span class="n">${on||0}/${total}</span></div>`;
+    h+=`<div class="leaves">`+g.types.map(t=>`<div class="leaf ${S.types.has(t)?'on':''}" data-leaf="${t}"><span class="box">${S.types.has(t)?'✓':''}</span><span class="m">${t}</span><span class="n">${cnt(g.key,t)}</span></div>`).join('')+`</div>`;
+  });
+  h+=`<div class="grp-t ${S.image?'full':''}" data-img="1"><span class="box">${S.image?'✓':''}</span><span class="m">图片</span><span class="n">${S.image?imgCnt():0}/${imgCnt()}</span></div>`;
+  return h;
+}
+function badgeHTML(){
+  if(!anyType())return '';
+  const parts=[];
+  if(S.image)parts.push(`<span class="badge">图片<span class="x" data-rm="__img">×</span></span>`);
+  [...S.types].forEach(t=>parts.push(`<span class="badge">${t}<span class="x" data-rm="${t}">×</span></span>`));
+  return parts.join('');
+}
+function pass(x){
+  if(S.q.trim()&&!x.t.includes(S.q.trim()))return false;
+  if(S.src!=='all'&&x.src!==S.src)return false;
+  if(x.kind==='image')return S.image;
+  return S.types.has(x.sub);
+}
+function paint(){
+  el('#popBody').innerHTML=popHTML();
+  const n=S.types.size+(S.image?1:0);
+  el('#pickCnt').textContent=n;el('#pickCnt').hidden=n===0;
+  el('#pickBtn').classList.toggle('on',n>0);
+  el('#badgeRow').style.display=n?'':'none';
+  el('#badges').innerHTML=badgeHTML();
+  const filtered=anyType()?DATA.filter(pass):DATA;
+  const rows2=filtered.filter(x=>{if(S.q.trim()&&!x.t.includes(S.q.trim()))return false;if(S.src!=='all'&&x.src!==S.src)return false;return true});
+  el('#items').innerHTML=rows2.length?rows2.map(x=>{
+    const tags=x.kind==='image'?'<span class="tag img">图片</span>':`<span class="tag kind">文章</span><span class="tag sub">${x.at==='text'?'纯文字稿':'图文稿'}</span><span class="tag sub">${x.sub}</span>`;
+    return `<div class="item"><div class="tt"><b>${x.t}</b><small>${x.src} · ${x.d}</small></div><div class="tags">${tags}</div><div class="meta">${x.n}</div></div>`;
+  }).join(''):`<div class="empty"><b>没有符合条件的内容</b>换个类型或清空搜索再试。</div>`;
+  el('#count').textContent=`共 ${rows2.length} 项`;
+  el('#footCount').textContent='当前：'+(anyType()?[...(S.image?['图片']:[]),...S.types].join('、'):'全部内容');
+}
+el('#pickBtn').onclick=()=>{el('#pop').classList.toggle('on');el('#pickBtn').classList.toggle('on',el('#pop').classList.contains('on')||S.types.size>0||S.image)}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.pick')){el('#pop').classList.remove('on');el('#pickBtn').classList.toggle('on',S.types.size>0||S.image)}
+});
+el('#pop').addEventListener('click',e=>{
+  const g=e.target.closest('[data-grp]');
+  if(g){
+    const types=G.article.groups.find(x=>x.key===g.dataset.grp).types;
+    const all=types.every(t=>S.types.has(t));
+    all?types.forEach(t=>S.types.delete(t)):types.forEach(t=>S.types.add(t));
+    paint();return;
+  }
+  const leaf=e.target.closest('[data-leaf]');
+  if(leaf){const t=leaf.dataset.leaf;S.types.has(t)?S.types.delete(t):S.types.add(t);paint();return}
+  const im=e.target.closest('[data-img]');
+  if(im){S.image=!S.image;paint();return}
+});
+el('#badges').addEventListener('click',e=>{
+  const x=e.target.closest('[data-rm]');if(!x)return;
+  const k=x.dataset.rm;if(k==='__img')S.image=false;else S.types.delete(k);paint();
+});
+el('#clearPop').onclick=()=>{S.types.clear();S.image=false;paint()};
+el('#clearBadges').onclick=()=>{S.types.clear();S.image=false;paint()};
+el('#done').onclick=()=>{el('#pop').classList.remove('on');el('#pickBtn').classList.toggle('on',S.types.size>0||S.image)};
+document.querySelectorAll('#srcs .chip').forEach(b=>b.onclick=()=>{document.querySelectorAll('#srcs .chip').forEach(x=>x.classList.remove('on'));b.classList.add('on');S.src=b.dataset.src;paint()});
+el('#q').addEventListener('input',e=>{S.q=e.target.value;paint()});
+paint();
+</script>
+</body>
+</html>
