@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AIGenPlatform · 总览 · 方案C 极简清单型 · v0.1.0 · 示例数据</title>
+<style>
+:root{--bg:#f1f6fc;--ink:#14213a;--muted:#596579;--faint:#8592a6;--line:#d9e3f0;--accent:#1c5fc4;--accent-d:#164ea3;--soft:#e3edfc;--navy:#0f2348;
+--sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 var(--sans)}
+.layout{display:flex;min-height:100vh}
+.side{width:236px;flex:none;background:var(--navy);color:#dfe8f6;padding:14px 12px;display:flex;flex-direction:column;gap:6px}
+.brand{display:flex;align-items:center;gap:9px;padding:4px 6px 14px}
+.brand .mark{width:30px;height:30px;border-radius:9px;background:var(--accent);color:#fff;font-weight:700;font-size:12px;display:grid;place-items:center}
+.brand b{font-size:13.5px;color:#fff;display:block;line-height:1.2}
+.brand small{font-size:10.5px;color:#8fa2be}
+.ng{font-size:11px;color:#7f93b2;padding:10px 8px 4px}
+.nv{display:flex;align-items:center;gap:9px;width:100%;border:0;background:transparent;color:#cfdbec;font:inherit;font-size:13px;text-align:left;padding:8px 10px;border-radius:9px;cursor:pointer}
+.nv.on{background:rgba(255,255,255,.12);color:#fff;font-weight:600}
+.nv:disabled{color:#7d8fa9;cursor:not-allowed}
+.nv .soon{margin-left:auto;font-size:10px;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:1px 6px}
+.side-foot{margin-top:auto;font-size:11px;color:#7f93b2;padding:10px 8px 4px;line-height:1.6}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{height:60px;flex:none;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 22px;gap:12px}
+.topbar b{font-size:14.5px}
+.topbar .right{margin-left:auto;display:flex;gap:8px;font-size:11.5px;color:var(--muted)}
+.chip{border:1px solid var(--line);border-radius:999px;padding:3px 9px;background:#fff}
+.chip.demo{background:#fdf4e3;border-color:#f0dcb0;color:#8a6a16}
+.bodywrap{padding:18px 22px 22px;flex:1;display:flex;flex-direction:column;gap:12px}
+.page-h h1{font-size:21px;margin:0}
+.page-h p{margin:2px 0 0;font-size:11.5px;color:var(--faint)}
+.hero{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.hero .big{display:flex;align-items:baseline;gap:8px}
+.hero .big b{font-size:30px;font-variant-numeric:tabular-nums;line-height:1}
+.hero .big small{font-size:12px;color:var(--muted)}
+.hero .d{width:1px;height:38px;background:var(--line)}
+.hero .sn{display:flex;gap:22px}
+.hero .sn div b{display:block;font-size:17px;font-variant-numeric:tabular-nums}
+.hero .sn div small{font-size:10.5px;color:var(--faint)}
+.hero .cta{margin-left:auto;display:flex;gap:8px}
+.btn{height:36px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.section{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.section-h{display:flex;align-items:center;gap:10px;padding:13px 18px;border-bottom:1px solid var(--line);background:#fafcff}
+.section-h h3{margin:0;font-size:13px}
+.section-h .more{margin-left:auto;font-size:11.5px;color:var(--accent)}
+.list{display:flex;flex-direction:column}
+.li{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid #eef3fa;cursor:pointer}
+.li:last-child{border-bottom:0}
+.li:hover{background:#fbfdff}
+.li .idx{width:22px;height:22px;border-radius:7px;background:var(--soft);color:var(--accent-d);font-size:11px;font-weight:700;display:grid;place-items:center;flex:none}
+.li .t{font-size:13px;font-weight:600;min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .sub{font-size:10.5px;color:var(--faint);flex:none}
+.li .act{flex:none;font-size:11.5px;color:var(--accent);font-weight:600}
+.tag{font-size:10.5px;padding:1px 8px;border-radius:999px;flex:none}
+.tag.ok{background:#e3f4ea;color:#17734a}.tag.bad{background:#fde8e8;color:#c42b2b}
+.tag.wait{background:#f4f0e6;color:#8a6a16}.tag.info{background:var(--soft);color:var(--accent-d)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.empty-note{padding:14px 18px;font-size:12px;color:var(--faint)}
+@media (max-width:1100px){.two{grid-template-columns:minmax(0,1fr)}}
+</style></head>
+<body>
+<div class="layout">
+<aside class="side" aria-label="主导航">
+  <div class="brand"><span class="mark">AG</span><div><b>AIGenPlatform</b><small>AI 内容生成平台</small></div></div>
+  <button class="nv on">总览</button>
+  <div class="ng">创作管理</div>
+  <button class="nv">图文生成</button>
+  <button class="nv">任务中心</button>
+  <button class="nv">内容库</button>
+  <button class="nv" disabled>发布管理</button>
+  <button class="nv" disabled>短视频<span class="soon">即将支持</span></button>
+  <div class="ng">系统</div>
+  <button class="nv">设置</button>
+  <button class="nv">系统</button>
+  <div class="side-foot"><b>本机运行 · 127.0.0.1</b><br>工作台数据均为示例数据</div>
+</aside>
+<main class="main">
+  <div class="topbar"><b>总览</b><div class="right"><span class="chip">● 本机运行 · 127.0.0.1</span><span class="chip">Worker 在线</span><span class="chip demo">● 示例数据</span></div></div>
+  <div class="bodywrap">
+    <div class="page-h"><div><div style="font-size:11.5px;color:var(--accent);font-weight:700;margin-bottom:2px">今日摘要</div>
+      <h1>总览</h1><p>只用一行摘要和一列清单，先看要处理的事。</p></div></div>
+
+    <div class="hero">
+      <div class="big"><b>19</b><small>今日产出（篇 + 张）</small></div>
+      <div class="d"></div>
+      <div class="sn">
+        <div><b style="color:#17734a">12</b><small>成功</small></div>
+        <div><b style="color:#8a6a16">5</b><small>等待</small></div>
+        <div><b style="color:#c42b2b">2</b><small>失败</small></div>
+        <div><b>1</b><small>定时待跑</small></div>
+      </div>
+      <div class="cta"><button class="btn">任务中心</button><button class="btn primary">新建图文任务</button></div>
+    </div>
+
+    <div class="two">
+      <div class="section">
+        <div class="section-h"><h3>需要你处理</h3><span class="more">全部 5 条 →</span></div>
+        <div class="list">
+          <div class="li"><span class="idx">1</span><span class="tag wait">等待登录</span><span class="t">老旧小区加装电梯，居民最关心哪些问题</span><span class="sub">09:58</span><span class="act">去处理</span></div>
+          <div class="li"><span class="idx">2</span><span class="tag wait">等待额度</span><span class="t">人工智能工具走进课堂，教师角色如何变化</span><span class="sub">09:30</span><span class="act">去处理</span></div>
+          <div class="li"><span class="idx">3</span><span class="tag bad">失败</span><span class="t">灵活就业人员如何更方便地参加社会保险</span><span class="sub">08:15</span><span class="act">重试</span></div>
+          <div class="li"><span class="idx">4</span><span class="tag info">配图被拒</span><span class="t">小城书店如何留住不同年龄的读者</span><span class="sub">08:40</span><span class="act">重新生成</span></div>
+          <div class="li"><span class="idx">5</span><span class="tag wait">排队中</span><span class="t">年轻人为什么开始重新发现社区生活</span><span class="sub">10:55</span><span class="act">查看</span></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-h"><h3>最近产物</h3><span class="more">去内容库 →</span></div>
+        <div class="list">
+          <div class="li"><span class="tag info">封面</span><span class="t">智能设备越多，家庭使用门槛会更低吗</span><span class="sub">11-11 07:52 · 1186 字</span></div>
+          <div class="li"><span class="tag info">封面</span><span class="t">养老金调整如何影响退休家庭的日常开支</span><span class="sub">11-10 22:31 · 1240 字</span></div>
+          <div class="li"><span class="tag info">封面</span><span class="t">小城书店如何留住不同年龄的读者</span><span class="sub">11-11 09:02 · 1102 字</span></div>
+          <div class="li"><span class="tag info">封面</span><span class="t">国产机器人如何从展示走向日常应用</span><span class="sub">11-11 07:10 · 1320 字</span></div>
+          <div class="li"><span class="tag info">封面</span><span class="t">社区食堂如何留住居民</span><span class="sub">11-15 07:32 · 1240 字</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-h"><h3>下一次自动执行</h3><span class="more">定时任务 →</span></div>
+      <div class="list">
+        <div class="li"><span class="tag info">每天 12:00</span><span class="t">社会民生 · 每天 3 篇深度稿</span><span class="sub">下次 11-21 12:00</span><span class="act">查看设置</span></div>
+        <div class="li"><span class="tag info">每周一 09:00</span><span class="t">职场成长 · 每周 2 篇原稿</span><span class="sub">下次 11-24 09:00</span><span class="act">查看设置</span></div>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+</body></html>

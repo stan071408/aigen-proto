@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AIGenPlatform · 总览页面 · 三个方案对照 · 261118 v0.1.0</title>
+<style>
+:root{--bg:#f1f6fc;--ink:#14213a;--muted:#596579;--faint:#8592a6;--line:#d9e3f0;--accent:#1c5fc4;--soft:#e3edfc;
+--sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.6 var(--sans);padding:28px 26px 40px}
+h1{font-size:22px;margin:0 0 4px}
+p.lead{margin:0 0 22px;color:var(--faint);font-size:12.5px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;max-width:1180px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.card h2{font-size:14.5px;margin:0;display:flex;align-items:center;gap:8px}
+.badge{font-size:10.5px;background:var(--soft);color:#164ea3;border-radius:999px;padding:1px 8px;font-weight:700}
+.card p{margin:0;font-size:12px;color:var(--muted)}
+.card ul{margin:2px 0 0;padding-left:16px;font-size:12px;color:var(--faint)}
+.card a{margin-top:auto;align-self:flex-start;height:34px;display:inline-flex;align-items:center;padding:0 14px;border-radius:10px;background:var(--accent);color:#fff;text-decoration:none;font-size:12.5px;font-weight:600}
+.card a:hover{background:#164ea3}
+.foot{margin-top:26px;font-size:11.5px;color:var(--faint)}
+</style></head>
+<body>
+<h1>总览页面 · 三个方案对照</h1>
+<p class="lead">按最新原型稿（v0.17.2）的设计语言出的三个独立总览原型，均为单文件离线 HTML；确定方案后再合并回主原型。</p>
+<div class="cards">
+  <div class="card">
+    <h2>方案 A · 数据看板型 <span class="badge">推荐</span></h2>
+    <p>四张 KPI 卡 + 近 7 天生成量柱图 + 待处理清单 + 最近产物 3 张封面卡。信息密度最高，一屏看清“今天怎么样”。</p>
+    <ul><li>适合每天先看数据再决定做什么</li><li>失败/等待用颜色区分，一眼找到异常</li></ul>
+    <a href="AIGenPlatform总览-方案A数据看板型-261118-v0.1.0.html">打开方案 A</a>
+  </div>
+  <div class="card">
+    <h2>方案 B · 工作台时间轴型</h2>
+    <p>左侧今日执行流水（按时间倒序、按日期分组），右侧“今天怎么样 + 快捷开始 + 最近产物”。偏向操作流。</p>
+    <ul><li>和任务中心的时间轴口径一致</li><li>快捷入口省一步跳转</li></ul>
+    <a href="AIGenPlatform总览-方案B工作台时间轴型-261118-v0.1.0.html">打开方案 B</a>
+  </div>
+  <div class="card">
+    <h2>方案 C · 极简清单型</h2>
+    <p>顶部一行摘要（今日产出/成功/等待/失败/定时待跑），下面两张清单：需要你处理、最近产物，再加一条下一次自动执行。</p>
+    <ul><li>克制、留白多，适合小屏</li><li>先处理、后浏览的两段式</li></ul>
+    <a href="AIGenPlatform总览-方案C极简清单型-261118-v0.1.0.html">打开方案 C</a>
+  </div>
+</div>
+<div class="foot">三个方案共用：左侧导航（图文生成 / 任务中心 / 内容库 / 发布管理（灰）/ 短视频（即将支持））、顶栏状态与示例数据标记、卡片圆角 12–14px、主色 #1c5fc4。数据均为示例。</div>
+</body></html>
