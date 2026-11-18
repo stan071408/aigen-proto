@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AIGenPlatform · 内容类型筛选 · 三方案入口 · 261115 v0.1.0</title>
+<style>
+:root{--accent:#1c5fc4;--accent-d:#164ea3;--bg:#f1f6fc;--paper:#fff;--ink:#14213a;--muted:#596579;--faint:#8592a6;--line:#d9e3f0;--soft:#eef4fc}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+.wrap{max-width:920px;margin:0 auto;padding:28px 20px 40px}
+.eyebrow{font-size:11px;letter-spacing:.08em;color:var(--accent);font-weight:650}
+h1{margin:4px 0 6px;font-size:24px;letter-spacing:-.02em}
+p.sub{margin:0 0 18px;color:var(--muted);font-size:13px}
+.card{display:block;text-decoration:none;color:inherit;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:0 6px 18px #12305c0f;transition:border-color .15s,transform .15s}
+.card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.card h2{margin:0 0 6px;font-size:16px;letter-spacing:-.01em}
+.card h2 span{display:inline-block;font-size:11px;font-weight:700;color:#fff;background:var(--accent);border-radius:6px;padding:1px 7px;margin-right:8px;vertical-align:2px}
+.card p{margin:0;color:var(--muted);font-size:13px}
+.card .meta{margin-top:8px;font-size:12px;color:var(--faint)}
+.note{margin-top:18px;font-size:12px;color:var(--faint);line-height:1.8}
+.note a{color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">内容与产物</div>
+  <h1>内容类型筛选 · 三个方案</h1>
+  <p class="sub">类型口径：内容 → 文章（纯文字稿 / 图文稿，各 5 种稿型）→ 图片。三份用同一份示例数据，只差过滤界面。</p>
+
+  <a class="card" href="%E5%86%85%E5%AE%B9%E7%B1%BB%E5%9E%8B%E7%AD%9B%E9%80%89-%E6%96%B9%E6%A1%88A%E4%B8%A4%E7%BA%A7%E8%83%B6%E8%9B%8A-261115-v0.1.0.html">
+    <h2><span>A</span>两级胶囊</h2>
+    <p>大类分段 + 文章类型胶囊 + 具体稿型胶囊（多选）。选「图文稿」自动切到文章大类，三级同屏可见，路径最短。</p>
+    <div class="meta">工具栏占三行 · 适合快速切换</div>
+  </a>
+
+  <a class="card" href="%E5%86%85%E5%AE%B9%E7%B1%BB%E5%9E%8B%E7%AD%9B%E9%80%89-%E6%96%B9%E6%A1%88B%E5%B7%A6%E4%BE%A7%E7%B1%BB%E5%9E%8B%E6%A0%91-261115-v0.1.0.html">
+    <h2><span>B</span>左侧类型树</h2>
+    <p>左侧类型树带计数，逐级下钻；右侧搜索、来源筛选、列表，顶部显示当前路径。层级最清楚。</p>
+    <div class="meta">左侧固定 250px · 适合内容量大后常态浏览</div>
+  </a>
+
+  <a class="card" href="%E5%86%85%E5%AE%B9%E7%B1%BB%E5%9E%8B%E7%AD%9B%E9%80%89-%E6%96%B9%E6%A1%88C%E7%B1%BB%E5%9E%8B%E5%A4%9A%E9%80%89%E5%BC%B9%E5%B1%82-261115-v0.1.0.html">
+    <h2><span>C</span>类型多选弹层</h2>
+    <p>工具栏一行：内容类型按钮（带已选徽标）+ 搜索 + 来源；弹层按组勾选，已选类型以胶囊回显可单独删。</p>
+    <div class="meta">列表区最大 · 适合以列表为主、偶尔筛类型</div>
+  </a>
+
+  <div class="note">
+    说明文档：<a href="%E5%86%85%E5%AE%B9%E7%B1%BB%E5%9E%8B%E7%AD%9B%E9%80%89-%E8%AF%B4%E6%98%8E-261115-v0.1.0.md">内容类型筛选-说明-261115-v0.1.0.md</a><br>
+    三个方案均为独立原型，尚未合并进主原型（主原型仍是 v0.15.2）。
+  </div>
+</div>
+</body>
+</html>
